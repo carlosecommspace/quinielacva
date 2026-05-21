@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <p class="section-label">Portal administrador</p>
+    <h1>Acceso al panel</h1>
+    <p class="muted">Area exclusiva para la persona encargada de la quiniela.</p>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash flash-error"><%= error %></div>
+    <% } %>
+
+    <form method="post" action="/admin/login" class="stack">
+      <div class="field">
+        <label for="password">Contrasena</label>
+        <input type="password" id="password" name="password" autocomplete="current-password"
+               required autofocus />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+    </form>
+
+    <p class="auth-alt"><a href="/">&larr; Volver al inicio</a></p>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

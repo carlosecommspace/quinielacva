@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark"></span>
+        <span class="brand-text">
+          <strong>CVA</strong>
+          <span class="brand-sub">Quiniela · Mundial 2026</span>
+        </span>
+      </a>
+      <%
+        let nav = [];
+        if (section === 'client' && typeof member !== 'undefined' && member) {
+          nav = [
+            { href: '/socio/quiniela', label: 'Mi quiniela' },
+            { href: '/socio/resultados', label: 'Resultados' },
+            { href: '/socio/posiciones', label: 'Posiciones' },
+          ];
+        } else if (section === 'admin' && currentPath !== '/admin') {
+          nav = [
+            { href: '/admin/panel', label: 'Panel' },
+            { href: '/admin/socios', label: 'Socios' },
+            { href: '/admin/partidos', label: 'Partidos' },
+            { href: '/admin/puntuacion', label: 'Puntuacion' },
+            { href: '/admin/posiciones', label: 'Posiciones' },
+          ];
+        }
+      %>
+      <% if (nav.length) { %>
+        <nav class="nav">
+          <% nav.forEach(function(item) { %>
+            <a href="<%= item.href %>" class="<%= currentPath.indexOf(item.href) === 0 ? 'active' : '' %>"><%= item.label %></a>
+          <% }); %>
+          <form method="post" action="<%= section === 'admin' ? '/admin/salir' : '/socio/salir' %>" class="nav-logout">
+            <button type="submit" class="link-btn">Salir</button>
+          </form>
+        </nav>
+      <% } %>
+    </div>
+  </header>
+  <main class="container">
+    <% if (typeof flash !== 'undefined' && flash) { %>
+      <div class="flash flash-<%= flash.type %>"><%= flash.text %></div>
+    <% } %>

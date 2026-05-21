@@ -1,0 +1,72 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label">Partidos</p>
+    <h1>Equipos, fechas y resultados</h1>
+  </div>
+</div>
+
+<div class="notice">
+  Edita el nombre de los equipos de cada grupo, ajusta la fecha y hora de los
+  partidos y carga los marcadores oficiales. Un partido cuenta para la
+  puntuacion cuando tiene los dos marcadores cargados. Deja los marcadores
+  vacios mientras el partido no se haya jugado.
+</div>
+
+<form method="post" action="/admin/partidos">
+  <% groups.forEach(function (g) { %>
+    <section class="group-card">
+      <div class="group-head">
+        <span class="group-tag">Grupo <%= g.name %></span>
+        <span class="group-teams-edit">Nombres de equipos</span>
+      </div>
+
+      <div class="team-edit-grid">
+        <% g.teams.forEach(function (t) { %>
+          <div class="field field-compact">
+            <label for="team_<%= t.id %>">Equipo <%= g.name %><%= t.slot %></label>
+            <input type="text" id="team_<%= t.id %>" name="team_<%= t.id %>"
+                   value="<%= t.name %>" required />
+          </div>
+        <% }); %>
+      </div>
+
+      <div class="match-list">
+        <% g.matches.forEach(function (m) { %>
+        <div class="match-row match-row-admin">
+          <div class="match-meta">
+            <span class="match-no">#<%= m.match_no %></span>
+            <span class="match-day">Jornada <%= m.matchday %></span>
+          </div>
+          <div class="match-admin-fields">
+            <div class="field field-compact field-date">
+              <label for="kickoff_<%= m.id %>">Fecha y hora</label>
+              <input type="datetime-local" id="kickoff_<%= m.id %>" name="kickoff_<%= m.id %>"
+                     value="<%= m.kickoff || '' %>" />
+            </div>
+            <div class="match-score-edit">
+              <span class="team team-home"><%= m.home_name %></span>
+              <div class="score-pair">
+                <input type="number" name="hs_<%= m.id %>" min="0" max="99" inputmode="numeric"
+                       class="score-input" value="<%= m.home_score === null || m.home_score === undefined ? '' : m.home_score %>" />
+                <span class="score-sep">:</span>
+                <input type="number" name="as_<%= m.id %>" min="0" max="99" inputmode="numeric"
+                       class="score-input" value="<%= m.away_score === null || m.away_score === undefined ? '' : m.away_score %>" />
+              </div>
+              <span class="team team-away"><%= m.away_name %></span>
+            </div>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+    </section>
+  <% }); %>
+
+  <div class="save-bar">
+    <span class="save-bar-text">Se guardan equipos, fechas y resultados de todos los grupos.</span>
+    <button type="submit" class="btn btn-primary">Guardar partidos</button>
+  </div>
+</form>
+
+<%- include('../partials/footer') %>

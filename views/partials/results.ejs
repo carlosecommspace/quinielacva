@@ -1,0 +1,43 @@
+<% groups.forEach(function (g) { %>
+  <section class="group-card">
+    <div class="group-head">
+      <span class="group-tag">Grupo <%= g.name %></span>
+      <span class="group-teams"><%= g.teams.map(function (t) { return t.name; }).join('  ·  ') %></span>
+    </div>
+    <div class="match-list">
+      <% g.matches.forEach(function (m) {
+        var finished = m.home_score !== null && m.home_score !== undefined
+                    && m.away_score !== null && m.away_score !== undefined;
+      %>
+      <div class="match-row">
+        <div class="match-meta">
+          <span class="match-no">#<%= m.match_no %></span>
+          <span class="match-day">Jornada <%= m.matchday %> · <%= fmtKickoff(m.kickoff) %></span>
+        </div>
+        <div class="match-pick result-only">
+          <span class="team team-home"><%= m.home_name %></span>
+          <div class="score-pair">
+            <% if (finished) { %>
+              <span class="final-score"><%= m.home_score %></span>
+              <span class="score-sep">:</span>
+              <span class="final-score"><%= m.away_score %></span>
+            <% } else { %>
+              <span class="final-score muted">·</span>
+              <span class="score-sep">:</span>
+              <span class="final-score muted">·</span>
+            <% } %>
+          </div>
+          <span class="team team-away"><%= m.away_name %></span>
+        </div>
+        <div class="match-result">
+          <% if (finished) { %>
+            <span class="result-badge">Finalizado</span>
+          <% } else { %>
+            <span class="result-pending">Por jugarse</span>
+          <% } %>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+  </section>
+<% }); %>

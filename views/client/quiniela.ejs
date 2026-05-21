@@ -1,0 +1,42 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label">Mi quiniela</p>
+    <h1><%= member.first_name %> <%= member.last_name %></h1>
+  </div>
+  <div class="page-head-aside">
+    <span class="tag">Accion <%= member.share_number %></span>
+    <% if (settings.predictionsLocked) { %>
+      <span class="tag tag-closed">Carga cerrada</span>
+    <% } else { %>
+      <span class="tag tag-open">Carga abierta</span>
+    <% } %>
+  </div>
+</div>
+
+<% if (settings.predictionsLocked) { %>
+  <div class="notice notice-warn">
+    La carga de pronosticos esta cerrada. Puedes consultar tu quiniela y los
+    resultados, pero ya no es posible modificar los marcadores.
+  </div>
+<% } else { %>
+  <div class="notice">
+    Escribe el marcador que pronosticas para cada partido y guarda al final.
+    Puedes volver a editar mientras la carga siga abierta<% if (settings.deadlineText) { %>:
+    <strong><%= settings.deadlineText %></strong><% } %>.
+  </div>
+<% } %>
+
+<form method="post" action="/socio/quiniela">
+  <%- include('../partials/quiniela') %>
+
+  <% if (editable) { %>
+    <div class="save-bar">
+      <span class="save-bar-text">Revisa tus marcadores antes de guardar.</span>
+      <button type="submit" class="btn btn-primary">Guardar mi quiniela</button>
+    </div>
+  <% } %>
+</form>
+
+<%- include('../partials/footer') %>

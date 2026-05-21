@@ -1,0 +1,79 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label">Socios</p>
+    <h1>Socios participantes</h1>
+  </div>
+  <div class="page-head-aside">
+    <span class="tag"><%= members.length %> registrados</span>
+  </div>
+</div>
+
+<div class="card card-pad">
+  <h2 class="card-title">Dar de alta un socio</h2>
+  <form method="post" action="/admin/socios" class="form-row">
+    <div class="field">
+      <label for="first_name">Nombre</label>
+      <input type="text" id="first_name" name="first_name" required />
+    </div>
+    <div class="field">
+      <label for="last_name">Apellido</label>
+      <input type="text" id="last_name" name="last_name" required />
+    </div>
+    <div class="field">
+      <label for="share_number">Numero de accion</label>
+      <input type="text" id="share_number" name="share_number" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Crear socio</button>
+  </form>
+  <p class="form-hint">Al crear el socio se genera un codigo de acceso unico. Entregalo al socio para que ingrese a su quiniela.</p>
+</div>
+
+<% if (!members.length) { %>
+  <div class="empty">Todavia no hay socios. Crea el primero con el formulario de arriba.</div>
+<% } else { %>
+  <div class="card table-card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Socio</th>
+          <th class="col-num">Accion</th>
+          <th>Codigo</th>
+          <th class="col-num">Pronosticos</th>
+          <th>Estado</th>
+          <th class="col-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% members.forEach(function (m) { %>
+        <tr class="<%= createdId === m.id ? 'row-new' : '' %>">
+          <td><span class="member-name"><%= m.first_name %> <%= m.last_name %></span></td>
+          <td class="col-num muted"><%= m.share_number %></td>
+          <td><code class="code-chip"><%= m.code %></code></td>
+          <td class="col-num"><%= predCount.get(m.id) || 0 %> / 72</td>
+          <td>
+            <% if (m.first_access_at) { %>
+              <span class="dot dot-ok"></span> Ingreso
+            <% } else { %>
+              <span class="dot dot-idle"></span> Sin ingresar
+            <% } %>
+          </td>
+          <td class="col-actions">
+            <a class="btn btn-ghost btn-sm" href="/admin/socios/<%= m.id %>">Ver quiniela</a>
+            <form method="post" action="/admin/socios/<%= m.id %>/codigo" class="inline-form">
+              <button type="submit" class="btn btn-ghost btn-sm">Nuevo codigo</button>
+            </form>
+            <form method="post" action="/admin/socios/<%= m.id %>/eliminar" class="inline-form"
+                  onsubmit="return confirm('Eliminar a <%= m.first_name %> <%= m.last_name %> y todos sus pronosticos?');">
+              <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>
