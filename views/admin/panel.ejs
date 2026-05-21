@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label">Panel administrador</p>
+    <h1>Resumen de la quiniela</h1>
+  </div>
+  <div class="page-head-aside">
+    <% if (settings.predictionsLocked) { %>
+      <span class="tag tag-closed">Carga cerrada</span>
+    <% } else { %>
+      <span class="tag tag-open">Carga abierta</span>
+    <% } %>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="card stat">
+    <span class="stat-label">Socios registrados</span>
+    <span class="stat-value"><%= membersCount %></span>
+  </div>
+  <div class="card stat">
+    <span class="stat-label">Partidos cargados</span>
+    <span class="stat-value"><%= matchesCount %></span>
+  </div>
+  <div class="card stat">
+    <span class="stat-label">Partidos finalizados</span>
+    <span class="stat-value"><%= finishedCount %></span>
+  </div>
+  <div class="card stat">
+    <span class="stat-label">Puntuacion</span>
+    <span class="stat-value"><%= settings.pointsOutcome %> / <%= settings.pointsExact %></span>
+    <span class="stat-foot">ganador / marcador exacto</span>
+  </div>
+</div>
+
+<div class="action-grid">
+  <a class="card action-card" href="/admin/socios">
+    <h3>Socios</h3>
+    <p>Da de alta socios y entrega su codigo de acceso.</p>
+  </a>
+  <a class="card action-card" href="/admin/partidos">
+    <h3>Partidos</h3>
+    <p>Edita equipos, fechas y carga los resultados oficiales.</p>
+  </a>
+  <a class="card action-card" href="/admin/puntuacion">
+    <h3>Puntuacion y cierre</h3>
+    <p>Define los puntos y abre o cierra la carga de pronosticos.</p>
+  </a>
+  <a class="card action-card" href="/admin/posiciones">
+    <h3>Posiciones</h3>
+    <p>Consulta la tabla general de la quiniela.</p>
+  </a>
+</div>
+
+<%- include('../partials/footer') %>

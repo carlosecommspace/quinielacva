@@ -1,0 +1,39 @@
+<% if (!standings.length) { %>
+  <div class="empty">Aun no hay socios registrados en la quiniela.</div>
+<% } else { %>
+  <div class="card table-card">
+    <table class="table standings-table">
+      <thead>
+        <tr>
+          <th class="col-rank">#</th>
+          <th>Socio</th>
+          <th class="col-num">Accion</th>
+          <th class="col-num">Exactos</th>
+          <th class="col-num">Resultado</th>
+          <th class="col-num">Jugados</th>
+          <th class="col-num col-points">Puntos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% standings.forEach(function (row) {
+          var isMe = typeof highlightMemberId !== 'undefined' && highlightMemberId === row.member.id;
+        %>
+        <tr class="<%= isMe ? 'row-me' : '' %>">
+          <td class="col-rank">
+            <span class="rank-badge <%= row.rank <= 3 ? 'rank-' + row.rank : '' %>"><%= row.rank %></span>
+          </td>
+          <td>
+            <span class="member-name"><%= row.member.first_name %> <%= row.member.last_name %></span>
+            <% if (isMe) { %><span class="tag tag-me">Tu</span><% } %>
+          </td>
+          <td class="col-num muted"><%= row.member.share_number %></td>
+          <td class="col-num"><%= row.exactHits %></td>
+          <td class="col-num"><%= row.outcomeHits %></td>
+          <td class="col-num muted"><%= row.played %></td>
+          <td class="col-num col-points"><strong><%= row.points %></strong></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

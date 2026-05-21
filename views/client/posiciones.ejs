@@ -1,0 +1,17 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label">Posiciones</p>
+    <h1>Tabla de posiciones</h1>
+  </div>
+</div>
+
+<div class="notice">
+  Acertar el ganador suma <strong><%= settings.pointsOutcome %> puntos</strong>;
+  acertar el marcador exacto suma <strong><%= settings.pointsExact %> puntos</strong>.
+</div>
+
+<%- include('../partials/standings') %>
+
+<%- include('../partials/footer') %>

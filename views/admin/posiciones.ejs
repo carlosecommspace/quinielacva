@@ -1,0 +1,21 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label">Posiciones</p>
+    <h1>Tabla general de la quiniela</h1>
+  </div>
+  <div class="page-head-aside">
+    <span class="tag"><%= standings.length %> participantes</span>
+  </div>
+</div>
+
+<div class="notice">
+  Acertar el ganador suma <strong><%= settings.pointsOutcome %> puntos</strong>;
+  acertar el marcador exacto suma <strong><%= settings.pointsExact %> puntos</strong>.
+  Los empates en puntos se desempatan por marcadores exactos y luego por aciertos de resultado.
+</div>
+
+<%- include('../partials/standings') %>
+
+<%- include('../partials/footer') %>

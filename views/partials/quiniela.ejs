@@ -1,0 +1,54 @@
+<% groups.forEach(function (g) { %>
+  <section class="group-card">
+    <div class="group-head">
+      <span class="group-tag">Grupo <%= g.name %></span>
+      <span class="group-teams"><%= g.teams.map(function (t) { return t.name; }).join('  ·  ') %></span>
+    </div>
+    <div class="match-list">
+      <% g.matches.forEach(function (m) {
+        var pred = predictions.get(m.id);
+        var finished = m.home_score !== null && m.home_score !== undefined
+                    && m.away_score !== null && m.away_score !== undefined;
+        var earned = null;
+        if (finished && pred) {
+          var exact = pred.home_score === m.home_score && pred.away_score === m.away_score;
+          var ao = m.home_score > m.away_score ? 1 : (m.home_score < m.away_score ? 2 : 0);
+          var po = pred.home_score > pred.away_score ? 1 : (pred.home_score < pred.away_score ? 2 : 0);
+          earned = exact ? settings.pointsExact : (po === ao ? settings.pointsOutcome : 0);
+        }
+      %>
+      <div class="match-row">
+        <div class="match-meta">
+          <span class="match-no">#<%= m.match_no %></span>
+          <span class="match-day">Jornada <%= m.matchday %> · <%= fmtKickoff(m.kickoff) %></span>
+        </div>
+        <div class="match-pick">
+          <span class="team team-home"><%= m.home_name %></span>
+          <div class="score-pair">
+            <input type="number" name="h_<%= m.id %>" min="0" max="99" inputmode="numeric"
+                   class="score-input" value="<%= pred ? pred.home_score : '' %>"
+                   <%= editable ? '' : 'disabled' %> />
+            <span class="score-sep">:</span>
+            <input type="number" name="a_<%= m.id %>" min="0" max="99" inputmode="numeric"
+                   class="score-input" value="<%= pred ? pred.away_score : '' %>"
+                   <%= editable ? '' : 'disabled' %> />
+          </div>
+          <span class="team team-away"><%= m.away_name %></span>
+        </div>
+        <div class="match-result">
+          <% if (finished) { %>
+            <span class="result-badge">Final <%= m.home_score %>&ndash;<%= m.away_score %></span>
+            <% if (earned !== null) { %>
+              <span class="points-badge <%= earned > 0 ? 'points-win' : 'points-zero' %>"><%= earned %> pts</span>
+            <% } else { %>
+              <span class="points-badge points-zero">Sin pronostico</span>
+            <% } %>
+          <% } else { %>
+            <span class="result-pending">Por jugarse</span>
+          <% } %>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+  </section>
+<% }); %>

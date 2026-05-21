@@ -1,0 +1,27 @@
+<%- include('../partials/header') %>
+
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <p class="section-label">Portal del socio</p>
+    <h1>Ingresa tu codigo</h1>
+    <p class="muted">Usa el codigo de acceso que te entrego la administracion del club.</p>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash flash-error"><%= error %></div>
+    <% } %>
+
+    <form method="post" action="/socio" class="stack">
+      <div class="field">
+        <label for="code">Codigo de acceso</label>
+        <input type="text" id="code" name="code" class="code-input" autocomplete="off"
+               autocapitalize="characters" spellcheck="false" maxlength="12"
+               placeholder="Ej. K7M2QP" required autofocus />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+    </form>
+
+    <p class="auth-alt"><a href="/">&larr; Volver al inicio</a></p>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,30 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label">Socio</p>
+    <h1><%= member.first_name %> <%= member.last_name %></h1>
+  </div>
+  <div class="page-head-aside">
+    <span class="tag">Accion <%= member.share_number %></span>
+    <span class="tag">Codigo <%= member.code %></span>
+    <span class="tag tag-points"><%= points %> puntos</span>
+  </div>
+</div>
+
+<div class="notice">
+  Como administrador puedes ver y editar la quiniela de este socio aunque la
+  carga este cerrada. Los cambios se guardan al presionar el boton inferior.
+</div>
+
+<p class="back-link"><a href="/admin/socios">&larr; Volver a socios</a></p>
+
+<form method="post" action="/admin/socios/<%= member.id %>">
+  <%- include('../partials/quiniela') %>
+  <div class="save-bar">
+    <span class="save-bar-text">Editando la quiniela de <%= member.first_name %> <%= member.last_name %>.</span>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+  </div>
+</form>
+
+<%- include('../partials/footer') %>

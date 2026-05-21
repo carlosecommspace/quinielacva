@@ -1,0 +1,64 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label">Puntuacion y cierre</p>
+    <h1>Reglas de la quiniela</h1>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card card-pad">
+    <h2 class="card-title">Puntuacion por acierto</h2>
+    <p class="muted">Define cuantos puntos otorga cada tipo de acierto en un partido.</p>
+    <form method="post" action="/admin/puntuacion" class="stack">
+      <div class="field">
+        <label for="points_outcome">Acertar el ganador (o el empate)</label>
+        <input type="number" id="points_outcome" name="points_outcome" min="0" max="999"
+               value="<%= settings.pointsOutcome %>" required />
+        <span class="field-hint">Se otorga cuando el socio acierta quien gana el partido pero no el marcador exacto.</span>
+      </div>
+      <div class="field">
+        <label for="points_exact">Acertar el marcador exacto</label>
+        <input type="number" id="points_exact" name="points_exact" min="0" max="999"
+               value="<%= settings.pointsExact %>" required />
+        <span class="field-hint">Se otorga cuando el socio acierta el marcador exacto del partido.</span>
+      </div>
+      <button type="submit" class="btn btn-primary">Guardar puntuacion</button>
+    </form>
+  </div>
+
+  <div class="card card-pad">
+    <h2 class="card-title">Carga de pronosticos</h2>
+    <p class="muted">
+      Estado actual:
+      <% if (settings.predictionsLocked) { %>
+        <strong class="text-closed">cerrada</strong> &mdash; los socios no pueden modificar sus quinielas.
+      <% } else { %>
+        <strong class="text-open">abierta</strong> &mdash; los socios pueden cargar y editar sus quinielas.
+      <% } %>
+    </p>
+    <form method="post" action="/admin/cierre" class="stack">
+      <div class="field">
+        <label for="deadline_text">Texto de fecha limite (opcional)</label>
+        <input type="text" id="deadline_text" name="deadline_text"
+               value="<%= settings.deadlineText %>"
+               placeholder="Ej. hasta el 11 de junio a las 12:00" />
+        <span class="field-hint">Se muestra a los socios como referencia mientras la carga este abierta.</span>
+      </div>
+      <div class="lock-toggle">
+        <label class="radio-row">
+          <input type="radio" name="locked" value="0" <%= settings.predictionsLocked ? '' : 'checked' %> />
+          <span>Mantener la carga <strong>abierta</strong></span>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="locked" value="1" <%= settings.predictionsLocked ? 'checked' : '' %> />
+          <span>Mantener la carga <strong>cerrada</strong></span>
+        </label>
+      </div>
+      <button type="submit" class="btn btn-primary">Guardar estado</button>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
