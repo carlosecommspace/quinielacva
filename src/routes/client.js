@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 
 const store = require('../store');
+const audit = require('../audit');
 const { parseScore } = require('../util');
 const { computeStandings } = require('../scoring');
 
@@ -91,6 +92,14 @@ router.post('/quiniela', requireMember, async (req, res) => {
   }));
   await store.savePredictions(req.member.id, entries);
   const saved = entries.filter((e) => e.home !== null && e.away !== null).length;
+  await audit.logQuinielaEdit({
+    actor: 'socio',
+    actorMemberId: req.member.id,
+    target: req.member,
+    savedCount: saved,
+    totalMatches: matches.length,
+    ip: req.ip,
+  });
   flash(req, 'notice', `Pronosticos guardados (${saved} de ${matches.length} partidos).`);
   res.redirect('/socio/quiniela');
 });

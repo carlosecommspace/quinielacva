@@ -51,6 +51,23 @@ la aplicacion. **Ningun deploy borra informacion:**
 - Los pronosticos de los socios, los socios, los resultados y la configuracion
   se conservan entre deploys.
 
+## Bitacora de auditoria (transparencia)
+
+Cada vez que se **edita una quiniela** se deja un registro, por transparencia:
+
+- **Cuando el socio guarda su quiniela** y **cuando el admin edita la quiniela
+  de un socio**.
+- El registro queda en dos lugares: una **linea `[audit]` en la consola**
+  (visible en los logs de Railway) y una **fila en la tabla `audit_log`** de
+  PostgreSQL (persistente entre deploys).
+- Se guarda: quien edito (`socio`/`admin`), de quien era la quiniela (id y
+  nombre + numero de accion), la fecha/hora, la IP de origen y cuantos
+  pronosticos quedaron cargados.
+- El historial **se conserva aunque luego se elimine al socio** (la referencia
+  queda en `NULL` pero el nombre se guarda como copia textual).
+- El registro es *best-effort*: si fallara el guardado en la bitacora, **nunca**
+  se interrumpe el guardado de la quiniela del socio.
+
 ## Despliegue en Railway
 
 1. Crea un proyecto en Railway y conecta este repositorio.

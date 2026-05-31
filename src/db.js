@@ -69,6 +69,23 @@ async function migrate() {
       UNIQUE (member_id, match_id)
     );
   `);
+  // Bitacora de auditoria: registra cada edicion de quiniela (por el socio o por
+  // el admin). Las referencias usan ON DELETE SET NULL para conservar el
+  // historial aunque luego se elimine al socio; por eso tambien se guarda
+  // target_name como copia textual.
+  await query(`
+    CREATE TABLE IF NOT EXISTS audit_log (
+      id               SERIAL PRIMARY KEY,
+      created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+      actor            TEXT NOT NULL,
+      actor_member_id  INT REFERENCES members(id) ON DELETE SET NULL,
+      target_member_id INT REFERENCES members(id) ON DELETE SET NULL,
+      target_name      TEXT,
+      action           TEXT NOT NULL,
+      saved_count      INT,
+      ip               TEXT
+    );
+  `);
 }
 
 const DEFAULT_SETTINGS = {

@@ -25,6 +25,10 @@ if (!process.env.SESSION_SECRET) {
 
 const app = express();
 
+// Railway corre detras de un proxy: confiamos en X-Forwarded-For para que
+// req.ip refleje la IP real del cliente (usada en la bitacora de auditoria).
+app.set('trust proxy', true);
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
 

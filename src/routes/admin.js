@@ -6,6 +6,7 @@ const router = express.Router();
 const { query } = require('../db');
 const { ADMIN_PATH } = require('../config');
 const store = require('../store');
+const audit = require('../audit');
 const { memberCode, parseScore } = require('../util');
 const { computeStandings, matchIsFinished, predictionPoints } = require('../scoring');
 
@@ -194,6 +195,15 @@ router.post('/socios/:id', requireAdmin, async (req, res) => {
     away: parseScore(req.body[`a_${m.id}`]),
   }));
   await store.savePredictions(id, entries);
+  const saved = entries.filter((e) => e.home !== null && e.away !== null).length;
+  await audit.logQuinielaEdit({
+    actor: 'admin',
+    actorMemberId: null,
+    target: member,
+    savedCount: saved,
+    totalMatches: matches.length,
+    ip: req.ip,
+  });
   flash(req, 'notice', `Quiniela actualizada para ${member.first_name} ${member.last_name}.`);
   res.redirect(`${ADMIN_PATH}/socios/${id}`);
 });
