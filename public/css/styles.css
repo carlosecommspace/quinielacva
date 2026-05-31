@@ -187,6 +187,29 @@ code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
   border-color: #F1DFA0;
   color: #6B4E00;
 }
+.code-card {
+  background: var(--cva-blue-fog);
+  border: 2px solid var(--cva-blue);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 22px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.code-card-label {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--cva-blue-soft);
+}
+.code-big {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 2.3rem; font-weight: 800; letter-spacing: 0.22em;
+  color: var(--cva-blue-deep);
+  margin: 8px 0 10px;
+}
+.code-card-warn {
+  font-size: 0.9rem; color: var(--cva-ink);
+  max-width: 540px; margin: 0 auto;
+}
 .flash {
   border-radius: 8px;
   padding: 12px 16px;

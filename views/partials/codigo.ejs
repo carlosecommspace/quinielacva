@@ -1,0 +1,13 @@
+<%
+  // Bloque destacado con el codigo de acceso del socio. Requiere `member` en
+  // el contexto (lo provee requireMember en res.locals o el render del panel).
+%>
+<div class="code-card">
+  <div class="code-card-label">Tu código de acceso</div>
+  <div class="code-big"><%= member.code %></div>
+  <p class="code-card-warn">
+    ⚠️ <strong>Guárdalo muy bien.</strong> Este código es tu llave para volver a
+    entrar a tus quinielas más adelante. Anótalo o tómale una captura. Si lo
+    pierdes, escríbele a la administración del club. No lo compartas.
+  </p>
+</div>

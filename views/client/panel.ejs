@@ -7,7 +7,6 @@
   </div>
   <div class="page-head-aside">
     <span class="tag">Acción <%= member.share_number %></span>
-    <span class="tag">Código <%= member.code %></span>
     <% if (settings.predictionsLocked) { %>
       <span class="tag tag-closed">Carga cerrada</span>
     <% } else { %>
@@ -15,6 +14,8 @@
     <% } %>
   </div>
 </div>
+
+<%- include('../partials/codigo') %>
 
 <div class="notice">
   Puedes crear todas las quinielas que quieras. Cada una cuesta
