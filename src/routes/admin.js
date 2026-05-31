@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 
 const { query } = require('../db');
+const { ADMIN_PATH } = require('../config');
 const store = require('../store');
 const { randomCode, parseScore } = require('../util');
 const { computeStandings, matchIsFinished, predictionPoints } = require('../scoring');
@@ -18,7 +19,7 @@ function flash(req, type, text) {
 
 function requireAdmin(req, res, next) {
   if (!req.session || !req.session.isAdmin) {
-    return res.redirect('/admin');
+    return res.redirect(ADMIN_PATH);
   }
   res.locals.section = 'admin';
   next();
@@ -27,7 +28,7 @@ function requireAdmin(req, res, next) {
 // --- Acceso administrador ---
 router.get('/', (req, res) => {
   if (req.session && req.session.isAdmin) {
-    return res.redirect('/admin/panel');
+    return res.redirect(`${ADMIN_PATH}/panel`);
   }
   res.render('admin/login', { title: 'Administracion · Quiniela CVA', section: 'admin' });
 });
@@ -36,7 +37,7 @@ router.post('/login', (req, res) => {
   const password = String(req.body.password || '');
   if (password && password === adminPassword()) {
     req.session.isAdmin = true;
-    return res.redirect('/admin/panel');
+    return res.redirect(`${ADMIN_PATH}/panel`);
   }
   res.render('admin/login', {
     title: 'Administracion · Quiniela CVA',
@@ -47,7 +48,7 @@ router.post('/login', (req, res) => {
 
 router.post('/salir', (req, res) => {
   req.session = null;
-  res.redirect('/admin');
+  res.redirect(ADMIN_PATH);
 });
 
 // --- Panel ---
@@ -91,7 +92,7 @@ router.post('/socios', requireAdmin, async (req, res) => {
 
   if (!firstName || !lastName || !shareNumber) {
     flash(req, 'error', 'Nombre, apellido y numero de accion son obligatorios.');
-    return res.redirect('/admin/socios');
+    return res.redirect(`${ADMIN_PATH}/socios`);
   }
 
   let created = null;
@@ -111,10 +112,10 @@ router.post('/socios', requireAdmin, async (req, res) => {
   }
   if (!created) {
     flash(req, 'error', 'No se pudo generar un codigo unico. Intenta de nuevo.');
-    return res.redirect('/admin/socios');
+    return res.redirect(`${ADMIN_PATH}/socios`);
   }
   flash(req, 'notice', `Socio creado: ${created.first_name} ${created.last_name}. Codigo de acceso: ${created.code}`);
-  res.redirect(`/admin/socios?creado=${created.id}`);
+  res.redirect(`${ADMIN_PATH}/socios?creado=${created.id}`);
 });
 
 router.post('/socios/:id/eliminar', requireAdmin, async (req, res) => {
@@ -124,13 +125,13 @@ router.post('/socios/:id/eliminar', requireAdmin, async (req, res) => {
     await query('DELETE FROM members WHERE id = $1', [id]);
     flash(req, 'notice', `Socio eliminado: ${member.first_name} ${member.last_name}.`);
   }
-  res.redirect('/admin/socios');
+  res.redirect(`${ADMIN_PATH}/socios`);
 });
 
 router.post('/socios/:id/codigo', requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const member = await store.getMember(id);
-  if (!member) return res.redirect('/admin/socios');
+  if (!member) return res.redirect(`${ADMIN_PATH}/socios`);
   for (let attempt = 0; attempt < 12; attempt++) {
     const code = randomCode(6);
     try {
@@ -142,7 +143,7 @@ router.post('/socios/:id/codigo', requireAdmin, async (req, res) => {
       throw err;
     }
   }
-  res.redirect(`/admin/socios?creado=${id}`);
+  res.redirect(`${ADMIN_PATH}/socios?creado=${id}`);
 });
 
 router.get('/socios/:id', requireAdmin, async (req, res) => {
@@ -150,7 +151,7 @@ router.get('/socios/:id', requireAdmin, async (req, res) => {
   const member = await store.getMember(id);
   if (!member) {
     flash(req, 'error', 'Socio no encontrado.');
-    return res.redirect('/admin/socios');
+    return res.redirect(`${ADMIN_PATH}/socios`);
   }
   const [groups, settings, predictions, matches] = await Promise.all([
     store.getGroups(),
@@ -184,7 +185,7 @@ router.post('/socios/:id', requireAdmin, async (req, res) => {
   const member = await store.getMember(id);
   if (!member) {
     flash(req, 'error', 'Socio no encontrado.');
-    return res.redirect('/admin/socios');
+    return res.redirect(`${ADMIN_PATH}/socios`);
   }
   const matches = await store.getMatches();
   const entries = matches.map((m) => ({
@@ -194,7 +195,7 @@ router.post('/socios/:id', requireAdmin, async (req, res) => {
   }));
   await store.savePredictions(id, entries);
   flash(req, 'notice', `Quiniela actualizada para ${member.first_name} ${member.last_name}.`);
-  res.redirect(`/admin/socios/${id}`);
+  res.redirect(`${ADMIN_PATH}/socios/${id}`);
 });
 
 // --- Partidos: equipos, fechas y resultados ---
@@ -231,7 +232,7 @@ router.post('/partidos', requireAdmin, async (req, res) => {
   }
 
   flash(req, 'notice', 'Partidos actualizados (equipos, fechas y resultados).');
-  res.redirect('/admin/partidos');
+  res.redirect(`${ADMIN_PATH}/partidos`);
 });
 
 // --- Puntuacion y cierre ---
@@ -249,12 +250,12 @@ router.post('/puntuacion', requireAdmin, async (req, res) => {
   const exact = parseInt(req.body.points_exact, 10);
   if (!Number.isInteger(outcome) || outcome < 0 || !Number.isInteger(exact) || exact < 0) {
     flash(req, 'error', 'Los puntajes deben ser numeros enteros mayores o iguales a cero.');
-    return res.redirect('/admin/puntuacion');
+    return res.redirect(`${ADMIN_PATH}/puntuacion`);
   }
   await store.setSetting('points_outcome', outcome);
   await store.setSetting('points_exact', exact);
   flash(req, 'notice', 'Puntuacion actualizada.');
-  res.redirect('/admin/puntuacion');
+  res.redirect(`${ADMIN_PATH}/puntuacion`);
 });
 
 router.post('/cierre', requireAdmin, async (req, res) => {
@@ -267,7 +268,7 @@ router.post('/cierre', requireAdmin, async (req, res) => {
     'notice',
     locked ? 'Carga de pronosticos CERRADA.' : 'Carga de pronosticos ABIERTA.'
   );
-  res.redirect('/admin/puntuacion');
+  res.redirect(`${ADMIN_PATH}/puntuacion`);
 });
 
 // --- Posiciones ---

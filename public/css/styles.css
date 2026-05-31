@@ -143,6 +143,9 @@ code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
 .choice-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
 }
+.choice-grid-single {
+  grid-template-columns: 1fr; max-width: 460px;
+}
 .choice-card {
   display: flex; flex-direction: column; gap: 6px;
   background: var(--cva-white);

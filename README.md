@@ -3,12 +3,15 @@
 Quiniela digital para los socios del club CVA. Cubre los **72 partidos de la
 fase de grupos** del Mundial FIFA 2026 (12 grupos, A-L).
 
-La aplicacion tiene dos portales:
+La aplicacion tiene dos portales, **con rutas de acceso separadas**:
 
-- **Portal del socio** - el socio ingresa con un codigo, carga sus pronosticos
-  y consulta resultados y posiciones.
-- **Portal administrador** - gestiona socios, define la puntuacion, carga los
-  resultados oficiales, abre o cierra la carga y consulta la tabla.
+- **Portal del socio** (`/socio`) - el socio ingresa con un codigo, carga sus
+  pronosticos y consulta resultados y posiciones.
+- **Portal administrador** (ruta secreta configurable) - gestiona socios,
+  define la puntuacion, carga los resultados oficiales, abre o cierra la carga
+  y consulta la tabla. Por seguridad **no vive en la predecible `/admin`**: su
+  ruta se define con la variable de entorno `ADMIN_PATH` y no se enlaza desde
+  la pagina publica de inicio.
 
 ## Funcionalidades
 
@@ -52,6 +55,9 @@ la aplicacion. **Ningun deploy borra informacion:**
 3. En el servicio de la aplicacion, configura las variables de entorno:
    - `DATABASE_URL` - referencia a `${{ Postgres.DATABASE_URL }}`
    - `ADMIN_PASSWORD` - la contrasena del portal administrador
+   - `ADMIN_PATH` - la ruta secreta del portal administrador (ej.
+     `gestion-cva-2026`). El panel quedara en `/<ADMIN_PATH>`. Si se omite,
+     se usa `/admin` (no recomendado en produccion).
    - `SESSION_SECRET` - una cadena larga y aleatoria
    - `DATABASE_SSL` - `false` si usas la URL interna del proyecto
 4. Railway construye con Nixpacks y arranca con `npm start`. La base de datos

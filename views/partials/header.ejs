@@ -27,13 +27,13 @@
             { href: '/socio/resultados', label: 'Resultados' },
             { href: '/socio/posiciones', label: 'Posiciones' },
           ];
-        } else if (section === 'admin' && currentPath !== '/admin') {
+        } else if (section === 'admin' && currentPath !== adminBase) {
           nav = [
-            { href: '/admin/panel', label: 'Panel' },
-            { href: '/admin/socios', label: 'Socios' },
-            { href: '/admin/partidos', label: 'Partidos' },
-            { href: '/admin/puntuacion', label: 'Puntuacion' },
-            { href: '/admin/posiciones', label: 'Posiciones' },
+            { href: adminBase + '/panel', label: 'Panel' },
+            { href: adminBase + '/socios', label: 'Socios' },
+            { href: adminBase + '/partidos', label: 'Partidos' },
+            { href: adminBase + '/puntuacion', label: 'Puntuacion' },
+            { href: adminBase + '/posiciones', label: 'Posiciones' },
           ];
         }
       %>
@@ -42,7 +42,7 @@
           <% nav.forEach(function(item) { %>
             <a href="<%= item.href %>" class="<%= currentPath.indexOf(item.href) === 0 ? 'active' : '' %>"><%= item.label %></a>
           <% }); %>
-          <form method="post" action="<%= section === 'admin' ? '/admin/salir' : '/socio/salir' %>" class="nav-logout">
+          <form method="post" action="<%= section === 'admin' ? adminBase + '/salir' : '/socio/salir' %>" class="nav-logout">
             <button type="submit" class="link-btn">Salir</button>
           </form>
         </nav>
