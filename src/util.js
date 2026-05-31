@@ -4,14 +4,35 @@ const crypto = require('crypto');
 
 // Alfabeto sin caracteres ambiguos (0/O, 1/I/L) para codigos faciles de dictar.
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+// Solo letras, sin las ambiguas I, L y O.
+const CODE_LETTERS = 'ABCDEFGHJKMNPQRSTUVWXYZ';
 
-function randomCode(length = 6) {
-  let code = '';
+function randomChars(alphabet, length) {
+  let out = '';
   const bytes = crypto.randomBytes(length);
   for (let i = 0; i < length; i++) {
-    code += CODE_ALPHABET[bytes[i] % CODE_ALPHABET.length];
+    out += alphabet[bytes[i] % alphabet.length];
   }
-  return code;
+  return out;
+}
+
+function randomCode(length = 6) {
+  return randomChars(CODE_ALPHABET, length);
+}
+
+// Codigo de acceso del socio: 3 digitos tomados de su numero de accion + 3
+// letras al azar (ej. accion "042" -> "042KMQ"). Asi el socio reconoce su
+// numero dentro del codigo. Reglas para los 3 digitos:
+//   - si el numero tiene 3 o mas digitos, se usan los ultimos 3;
+//   - si tiene menos, se rellena con ceros a la izquierda (ej. "42" -> "042");
+//   - si no tiene ningun digito, se usan 3 digitos al azar.
+function memberCode(shareNumber) {
+  const digits = String(shareNumber == null ? '' : shareNumber).replace(/\D/g, '');
+  let prefix;
+  if (digits.length >= 3) prefix = digits.slice(-3);
+  else if (digits.length > 0) prefix = digits.padStart(3, '0');
+  else prefix = randomChars('0123456789', 3);
+  return prefix + randomChars(CODE_LETTERS, 3);
 }
 
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -46,4 +67,4 @@ function parseScore(value) {
   return n;
 }
 
-module.exports = { randomCode, formatKickoff, formatDateTime, parseScore };
+module.exports = { randomCode, memberCode, formatKickoff, formatDateTime, parseScore };
