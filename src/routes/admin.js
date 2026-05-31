@@ -6,7 +6,7 @@ const router = express.Router();
 const { query } = require('../db');
 const { ADMIN_PATH } = require('../config');
 const store = require('../store');
-const { randomCode, parseScore } = require('../util');
+const { memberCode, parseScore } = require('../util');
 const { computeStandings, matchIsFinished, predictionPoints } = require('../scoring');
 
 function adminPassword() {
@@ -97,7 +97,7 @@ router.post('/socios', requireAdmin, async (req, res) => {
 
   let created = null;
   for (let attempt = 0; attempt < 12 && !created; attempt++) {
-    const code = randomCode(6);
+    const code = memberCode(shareNumber);
     try {
       const { rows } = await query(
         `INSERT INTO members (first_name, last_name, share_number, code)
@@ -133,7 +133,7 @@ router.post('/socios/:id/codigo', requireAdmin, async (req, res) => {
   const member = await store.getMember(id);
   if (!member) return res.redirect(`${ADMIN_PATH}/socios`);
   for (let attempt = 0; attempt < 12; attempt++) {
-    const code = randomCode(6);
+    const code = memberCode(member.share_number);
     try {
       await query('UPDATE members SET code = $1 WHERE id = $2', [code, id]);
       flash(req, 'notice', `Nuevo codigo para ${member.first_name} ${member.last_name}: ${code}`);

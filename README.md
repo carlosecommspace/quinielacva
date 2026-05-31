@@ -18,7 +18,9 @@ La aplicacion tiene dos portales, **con rutas de acceso separadas**:
 
 ### Administrador
 1. Crear socios (nombre, apellido y numero de accion). Cada socio recibe un
-   **codigo de acceso unico** y autogenerado.
+   **codigo de acceso unico**, formado por los **3 digitos de su numero de
+   accion + 3 letras al azar** (ej. accion `042` -> codigo `042KMQ`), para que
+   le resulte facil de recordar.
 2. Ver el listado de socios y la **tabla de posiciones** general.
 3. Editar equipos y fechas, y **cargar los resultados** de cada partido.
 4. Configurar la **puntuacion**: puntos por acertar el ganador y puntos por
