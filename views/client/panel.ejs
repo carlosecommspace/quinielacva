@@ -1,0 +1,74 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label">Mis quinielas</p>
+    <h1><%= member.first_name %> <%= member.last_name %></h1>
+  </div>
+  <div class="page-head-aside">
+    <span class="tag">Acción <%= member.share_number %></span>
+    <span class="tag">Código <%= member.code %></span>
+    <% if (settings.predictionsLocked) { %>
+      <span class="tag tag-closed">Carga cerrada</span>
+    <% } else { %>
+      <span class="tag tag-open">Carga abierta</span>
+    <% } %>
+  </div>
+</div>
+
+<div class="notice">
+  Puedes crear todas las quinielas que quieras. Cada una cuesta
+  <strong><%= cost %></strong> y queda como <strong>NO PAGADA</strong> hasta que
+  realices el pago a la administración del club; ellos la validan para que juegue.
+  <% if (settings.deadlineText) { %>
+    Cierre de carga: <strong><%= settings.deadlineText %></strong>.
+  <% } %>
+</div>
+
+<% if (!quinielas.length) { %>
+  <div class="empty">Todavía no tienes quinielas. Crea la primera con el botón de abajo.</div>
+<% } else { %>
+  <div class="card table-card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Quiniela</th>
+          <th class="col-num">Cargados</th>
+          <th class="col-num">Puntos</th>
+          <th>Estado de pago</th>
+          <th class="col-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% quinielas.forEach(function (q) { %>
+        <tr>
+          <td><span class="member-name"><%= q.label %></span></td>
+          <td class="col-num"><%= q.filled %> / <%= totalMatches %></td>
+          <td class="col-num"><strong><%= q.points %></strong></td>
+          <td>
+            <% if (q.paid) { %>
+              <span class="dot dot-ok"></span> Pagada
+            <% } else { %>
+              <span class="dot dot-idle"></span> No pagada
+            <% } %>
+          </td>
+          <td class="col-actions">
+            <a class="btn btn-ghost btn-sm" href="/socio/quiniela/<%= q.id %>">
+              <%= settings.predictionsLocked ? 'Ver' : 'Editar' %>
+            </a>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<% if (!settings.predictionsLocked) { %>
+  <form method="post" action="/socio/quiniela/nueva" class="save-bar">
+    <span class="save-bar-text">Crea una quiniela nueva para cargar otros marcadores.</span>
+    <button type="submit" class="btn btn-primary">+ Nueva quiniela</button>
+  </form>
+<% } %>
+
+<%- include('../partials/footer') %>

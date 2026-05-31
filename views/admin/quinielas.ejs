@@ -2,32 +2,31 @@
 
 <div class="page-head">
   <div>
-    <p class="section-label">Socio</p>
-    <h1><%= member.first_name %> <%= member.last_name %></h1>
+    <p class="section-label">Quinielas</p>
+    <h1>Seguimiento de quinielas</h1>
   </div>
   <div class="page-head-aside">
-    <span class="tag">Acción <%= member.share_number %></span>
-    <span class="tag">Código <%= member.code %></span>
+    <span class="tag"><%= quinielas.length %> en total</span>
+    <span class="tag tag-open"><%= paidCount %> pagadas</span>
+    <span class="tag tag-closed"><%= quinielas.length - paidCount %> sin pagar</span>
   </div>
 </div>
 
-<p class="back-link"><a href="<%= adminBase %>/socios">&larr; Volver a socios</a></p>
-
-<div class="card card-pad">
-  <h2 class="card-title">Acceso del socio</h2>
-  <p class="form-hint">Código de acceso: <code class="code-chip"><%= member.code %></code></p>
-  <form method="post" action="<%= adminBase %>/socios/<%= member.id %>/codigo" class="inline-form">
-    <button type="submit" class="btn btn-ghost btn-sm">Regenerar código</button>
-  </form>
+<div class="notice">
+  Las quinielas <strong>pagadas</strong> son las que compiten en la tabla de
+  posiciones. Cada quiniela cuesta <strong><%= cost %></strong>; valida el pago
+  con el botón correspondiente cuando el socio pague a la administración.
 </div>
 
 <% if (!quinielas.length) { %>
-  <div class="empty">Este socio aún no tiene quinielas.</div>
+  <div class="empty">Todavía no hay quinielas cargadas.</div>
 <% } else { %>
   <div class="card table-card">
     <table class="table">
       <thead>
         <tr>
+          <th>Socio</th>
+          <th class="col-num">Acción</th>
           <th>Quiniela</th>
           <th class="col-num">Cargados</th>
           <th class="col-num">Puntos</th>
@@ -37,8 +36,10 @@
       </thead>
       <tbody>
         <% quinielas.forEach(function (q) { %>
-        <tr>
-          <td><span class="member-name"><%= q.label %></span></td>
+        <tr class="<%= q.paid ? '' : 'row-new' %>">
+          <td><span class="member-name"><%= q.first_name %> <%= q.last_name %></span></td>
+          <td class="col-num muted"><%= q.share_number %></td>
+          <td><%= q.label %></td>
           <td class="col-num"><%= q.filled %> / <%= totalMatches %></td>
           <td class="col-num"><strong><%= q.points %></strong></td>
           <td>
@@ -51,16 +52,10 @@
           <td class="col-actions">
             <a class="btn btn-ghost btn-sm" href="<%= adminBase %>/quinielas/<%= q.id %>">Ver / editar</a>
             <form method="post" action="<%= adminBase %>/quinielas/<%= q.id %>/pagar" class="inline-form">
-              <input type="hidden" name="back" value="socio" />
               <input type="hidden" name="paid" value="<%= q.paid ? '0' : '1' %>" />
               <button type="submit" class="btn btn-<%= q.paid ? 'ghost' : 'primary' %> btn-sm">
                 <%= q.paid ? 'Marcar no pagada' : 'Marcar pagada' %>
               </button>
-            </form>
-            <form method="post" action="<%= adminBase %>/quinielas/<%= q.id %>/eliminar" class="inline-form"
-                  onsubmit="return confirm('Eliminar <%= q.label %> de <%= member.first_name %> <%= member.last_name %>?');">
-              <input type="hidden" name="back" value="socio" />
-              <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
             </form>
           </td>
         </tr>
@@ -69,10 +64,5 @@
     </table>
   </div>
 <% } %>
-
-<form method="post" action="<%= adminBase %>/socios/<%= member.id %>/quiniela" class="save-bar">
-  <span class="save-bar-text">Crea una quiniela adicional para este socio.</span>
-  <button type="submit" class="btn btn-primary">+ Nueva quiniela</button>
-</form>
 
 <%- include('../partials/footer') %>

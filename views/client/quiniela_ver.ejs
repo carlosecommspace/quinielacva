@@ -2,19 +2,20 @@
 
 <div class="page-head">
   <div>
-    <p class="section-label">Quiniela de un socio</p>
-    <h1><%= target.first_name %> <%= target.last_name %></h1>
+    <p class="section-label">Quiniela de un participante</p>
+    <h1><%= quiniela.first_name %> <%= quiniela.last_name %></h1>
   </div>
   <div class="page-head-aside">
-    <span class="tag">Acción <%= target.share_number %></span>
+    <span class="tag">Acción <%= quiniela.share_number %></span>
+    <span class="tag"><%= quiniela.label %></span>
     <span class="tag tag-points"><%= points %> puntos</span>
   </div>
 </div>
 
 <div class="notice">
-  Estás viendo la quiniela de <%= target.first_name %> <%= target.last_name %>.
-  La carga está cerrada, por eso las quinielas son visibles para todos los
-  socios (transparencia). Solo lectura.
+  Estás viendo <strong><%= quiniela.label %></strong> de <%= quiniela.first_name %>
+  <%= quiniela.last_name %>. La carga está cerrada, por eso las quinielas son
+  visibles para todos por transparencia. Solo lectura.
 </div>
 
 <p class="back-link"><a href="/socio/posiciones">&larr; Volver a posiciones</a></p>

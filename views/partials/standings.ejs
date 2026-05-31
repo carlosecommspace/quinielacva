@@ -28,10 +28,11 @@
           </td>
           <td>
             <% if (qLinkBase) { %>
-              <a class="member-link" href="<%= qLinkBase %>/<%= row.member.id %>"><span class="member-name"><%= row.member.first_name %> <%= row.member.last_name %></span></a>
+              <a class="member-link" href="<%= qLinkBase %>/<%= row.id %>"><span class="member-name"><%= row.member.first_name %> <%= row.member.last_name %></span></a>
             <% } else { %>
               <span class="member-name"><%= row.member.first_name %> <%= row.member.last_name %></span>
             <% } %>
+            <% if (row.label) { %><span class="muted"> · <%= row.label %></span><% } %>
             <% if (isMe) { %><span class="tag tag-me">Tú</span><% } %>
           </td>
           <td class="col-num muted"><%= row.member.share_number %></td>

@@ -27,7 +27,7 @@
     </div>
     <button type="submit" class="btn btn-primary">Crear socio</button>
   </form>
-  <p class="form-hint">Al crear el socio se genera un código de acceso único (los 3 dígitos de su número de acción + 3 letras al azar). Entrégalo al socio para que ingrese a su quiniela.</p>
+  <p class="form-hint">Al crear el socio se genera un código de acceso único (los 3 dígitos de su número de acción + 3 letras al azar) y una primera quiniela vacía. Entrégale el código para que ingrese y arme sus quinielas.</p>
 </div>
 
 <% if (!members.length) { %>
@@ -40,18 +40,24 @@
           <th>Socio</th>
           <th class="col-num">Acción</th>
           <th>Código</th>
-          <th class="col-num">Pronósticos</th>
+          <th class="col-num">Quinielas</th>
+          <th class="col-num">Pagadas</th>
           <th>Estado</th>
           <th class="col-actions">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <% members.forEach(function (m) { %>
+        <% members.forEach(function (m) {
+             var c = counts.get(m.id) || { total: 0, paid: 0 };
+        %>
         <tr class="<%= createdId === m.id ? 'row-new' : '' %>">
           <td><span class="member-name"><%= m.first_name %> <%= m.last_name %></span></td>
           <td class="col-num muted"><%= m.share_number %></td>
           <td><code class="code-chip"><%= m.code %></code></td>
-          <td class="col-num"><%= predCount.get(m.id) || 0 %> / 72</td>
+          <td class="col-num"><%= c.total %></td>
+          <td class="col-num">
+            <%= c.paid %><% if (c.total - c.paid > 0) { %> <span class="muted">(<%= c.total - c.paid %> sin pagar)</span><% } %>
+          </td>
           <td>
             <% if (m.first_access_at) { %>
               <span class="dot dot-ok"></span> Ingresó
@@ -60,12 +66,9 @@
             <% } %>
           </td>
           <td class="col-actions">
-            <a class="btn btn-ghost btn-sm" href="<%= adminBase %>/socios/<%= m.id %>">Ver quiniela</a>
-            <form method="post" action="<%= adminBase %>/socios/<%= m.id %>/codigo" class="inline-form">
-              <button type="submit" class="btn btn-ghost btn-sm">Nuevo código</button>
-            </form>
+            <a class="btn btn-ghost btn-sm" href="<%= adminBase %>/socios/<%= m.id %>">Ver quinielas</a>
             <form method="post" action="<%= adminBase %>/socios/<%= m.id %>/eliminar" class="inline-form"
-                  onsubmit="return confirm('Eliminar a <%= m.first_name %> <%= m.last_name %> y todos sus pronósticos?');">
+                  onsubmit="return confirm('Eliminar a <%= m.first_name %> <%= m.last_name %> y todas sus quinielas?');">
               <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
             </form>
           </td>

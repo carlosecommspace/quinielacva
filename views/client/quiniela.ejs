@@ -2,11 +2,15 @@
 
 <div class="page-head">
   <div>
-    <p class="section-label">Mi quiniela</p>
-    <h1><%= member.first_name %> <%= member.last_name %></h1>
+    <p class="section-label"><%= member.first_name %> <%= member.last_name %></p>
+    <h1><%= quiniela.label %></h1>
   </div>
   <div class="page-head-aside">
-    <span class="tag">Acción <%= member.share_number %></span>
+    <% if (quiniela.paid) { %>
+      <span class="tag tag-open">Pagada</span>
+    <% } else { %>
+      <span class="tag tag-closed">No pagada</span>
+    <% } %>
     <% if (settings.predictionsLocked) { %>
       <span class="tag tag-closed">Carga cerrada</span>
     <% } else { %>
@@ -14,6 +18,16 @@
     <% } %>
   </div>
 </div>
+
+<p class="back-link"><a href="/socio">&larr; Volver a mis quinielas</a></p>
+
+<% if (!quiniela.paid) { %>
+  <div class="notice notice-warn">
+    Esta quiniela está <strong>NO PAGADA</strong>. Para que sea válida y juegue,
+    realiza el pago de <strong><%= cost %></strong> a la administración del club;
+    ellos la validarán. Mientras tanto puedes seguir editándola.
+  </div>
+<% } %>
 
 <% if (settings.predictionsLocked) { %>
   <div class="notice notice-warn">
@@ -28,7 +42,7 @@
   </div>
 <% } %>
 
-<form method="post" action="/socio/quiniela">
+<form method="post" action="/socio/quiniela/<%= quiniela.id %>">
   <%- include('../partials/quiniela') %>
 
   <% if (editable) { %>

@@ -26,7 +26,7 @@
         let nav = [];
         if (section === 'client' && typeof member !== 'undefined' && member) {
           nav = [
-            { href: '/socio/quiniela', label: 'Mi quiniela' },
+            { href: '/socio', label: 'Mis quinielas' },
             { href: '/socio/resultados', label: 'Resultados' },
             { href: '/socio/posiciones', label: 'Posiciones' },
           ];
@@ -34,6 +34,7 @@
           nav = [
             { href: adminBase + '/panel', label: 'Panel' },
             { href: adminBase + '/socios', label: 'Socios' },
+            { href: adminBase + '/quinielas', label: 'Quinielas' },
             { href: adminBase + '/partidos', label: 'Partidos' },
             { href: adminBase + '/puntuacion', label: 'Puntuación' },
             { href: adminBase + '/posiciones', label: 'Posiciones' },

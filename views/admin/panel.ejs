@@ -20,6 +20,11 @@
     <span class="stat-value"><%= membersCount %></span>
   </div>
   <div class="card stat">
+    <span class="stat-label">Quinielas</span>
+    <span class="stat-value"><%= quinielaSummary.paid %> / <%= quinielaSummary.total %></span>
+    <span class="stat-foot">pagadas / totales</span>
+  </div>
+  <div class="card stat">
     <span class="stat-label">Partidos cargados</span>
     <span class="stat-value"><%= matchesCount %></span>
   </div>
@@ -38,6 +43,10 @@
   <a class="card action-card" href="<%= adminBase %>/socios">
     <h3>Socios</h3>
     <p>Da de alta socios y entrega su código de acceso.</p>
+  </a>
+  <a class="card action-card" href="<%= adminBase %>/quinielas">
+    <h3>Quinielas</h3>
+    <p>Da seguimiento a las quinielas y valida los pagos (pagadas / no pagadas).</p>
   </a>
   <a class="card action-card" href="<%= adminBase %>/partidos">
     <h3>Partidos</h3>

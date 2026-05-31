@@ -1,0 +1,46 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label"><%= quiniela.first_name %> <%= quiniela.last_name %></p>
+    <h1><%= quiniela.label %></h1>
+  </div>
+  <div class="page-head-aside">
+    <span class="tag">Acción <%= quiniela.share_number %></span>
+    <% if (quiniela.paid) { %>
+      <span class="tag tag-open">Pagada</span>
+    <% } else { %>
+      <span class="tag tag-closed">No pagada</span>
+    <% } %>
+    <span class="tag tag-points"><%= points %> puntos</span>
+  </div>
+</div>
+
+<div class="notice">
+  Como administrador puedes ver y editar esta quiniela aunque la carga esté
+  cerrada. Los cambios se guardan al presionar el botón inferior.
+</div>
+
+<p class="back-link"><a href="<%= adminBase %>/socios/<%= quiniela.member_id %>">&larr; Volver al socio</a></p>
+
+<div class="card card-pad">
+  <form method="post" action="<%= adminBase %>/quinielas/<%= quiniela.id %>/pagar" class="inline-form">
+    <input type="hidden" name="paid" value="<%= quiniela.paid ? '0' : '1' %>" />
+    <button type="submit" class="btn btn-<%= quiniela.paid ? 'ghost' : 'primary' %> btn-sm">
+      <%= quiniela.paid ? 'Marcar como NO pagada' : 'Validar pago (marcar pagada)' %>
+    </button>
+  </form>
+  <% if (!quiniela.paid) { %>
+    <p class="form-hint">El socio debe pagar <strong><%= cost %></strong> a la administración para que esta quiniela juegue.</p>
+  <% } %>
+</div>
+
+<form method="post" action="<%= adminBase %>/quinielas/<%= quiniela.id %>">
+  <%- include('../partials/quiniela') %>
+  <div class="save-bar">
+    <span class="save-bar-text">Editando <%= quiniela.label %> de <%= quiniela.first_name %> <%= quiniela.last_name %>.</span>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+  </div>
+</form>
+
+<%- include('../partials/footer') %>
