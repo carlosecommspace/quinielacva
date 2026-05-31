@@ -3,8 +3,8 @@
 <div class="auth-wrap">
   <div class="card auth-card">
     <p class="section-label">Portal del socio</p>
-    <h1>Ingresa tu codigo</h1>
-    <p class="muted">Usa el codigo de acceso que te entrego la administracion del club.</p>
+    <h1>Ingresa tu código</h1>
+    <p class="muted">Usa el código de acceso que te entregó la administración del club.</p>
 
     <% if (typeof error !== 'undefined' && error) { %>
       <div class="flash flash-error"><%= error %></div>
@@ -12,7 +12,7 @@
 
     <form method="post" action="/socio" class="stack">
       <div class="field">
-        <label for="code">Codigo de acceso</label>
+        <label for="code">Código de acceso</label>
         <input type="text" id="code" name="code" class="code-input" autocomplete="off"
                autocapitalize="characters" spellcheck="false" maxlength="12"
                placeholder="Ej. K7M2QP" required autofocus />

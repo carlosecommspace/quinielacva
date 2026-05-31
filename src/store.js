@@ -131,6 +131,35 @@ async function markFirstAccess(memberId) {
   );
 }
 
+async function recordAudit(entry) {
+  const {
+    actor,
+    actorMemberId = null,
+    targetMemberId = null,
+    targetName = null,
+    action,
+    savedCount = null,
+    ip = null,
+  } = entry;
+  await query(
+    `INSERT INTO audit_log (actor, actor_member_id, target_member_id, target_name, action, saved_count, ip)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [actor, actorMemberId, targetMemberId, targetName, action, savedCount, ip]
+  );
+}
+
+async function getAuditLog(limit = 200) {
+  const { rows } = await query(
+    `SELECT id, created_at, actor, actor_member_id, target_member_id, target_name,
+            action, saved_count, ip
+     FROM audit_log
+     ORDER BY created_at DESC, id DESC
+     LIMIT $1`,
+    [limit]
+  );
+  return rows;
+}
+
 module.exports = {
   getSettings,
   setSetting,
@@ -144,4 +173,6 @@ module.exports = {
   getAllPredictions,
   savePredictions,
   markFirstAccess,
+  recordAudit,
+  getAuditLog,
 };

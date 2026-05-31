@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 
 const store = require('../store');
+const audit = require('../audit');
 const { parseScore } = require('../util');
 const { computeStandings } = require('../scoring');
 
@@ -39,7 +40,7 @@ router.post('/', async (req, res) => {
     return res.render('client/login', {
       title: 'Acceso socios · Quiniela CVA',
       section: 'client',
-      error: 'Ingresa tu codigo de acceso.',
+      error: 'Ingresa tu código de acceso.',
     });
   }
   const member = await store.getMemberByCode(code);
@@ -47,7 +48,7 @@ router.post('/', async (req, res) => {
     return res.render('client/login', {
       title: 'Acceso socios · Quiniela CVA',
       section: 'client',
-      error: 'El codigo no es valido. Verificalo con la administracion del club.',
+      error: 'El código no es válido. Verifícalo con la administración del club.',
     });
   }
   await store.markFirstAccess(member.id);
@@ -80,7 +81,7 @@ router.get('/quiniela', requireMember, async (req, res) => {
 router.post('/quiniela', requireMember, async (req, res) => {
   const settings = await store.getSettings();
   if (settings.predictionsLocked) {
-    flash(req, 'error', 'La carga de pronosticos esta cerrada. No se guardaron cambios.');
+    flash(req, 'error', 'La carga de pronósticos está cerrada. No se guardaron cambios.');
     return res.redirect('/socio/quiniela');
   }
   const matches = await store.getMatches();
@@ -91,7 +92,15 @@ router.post('/quiniela', requireMember, async (req, res) => {
   }));
   await store.savePredictions(req.member.id, entries);
   const saved = entries.filter((e) => e.home !== null && e.away !== null).length;
-  flash(req, 'notice', `Pronosticos guardados (${saved} de ${matches.length} partidos).`);
+  await audit.logQuinielaEdit({
+    actor: 'socio',
+    actorMemberId: req.member.id,
+    target: req.member,
+    savedCount: saved,
+    totalMatches: matches.length,
+    ip: req.ip,
+  });
+  flash(req, 'notice', `Pronósticos guardados (${saved} de ${matches.length} partidos).`);
   res.redirect('/socio/quiniela');
 });
 

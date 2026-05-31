@@ -2,21 +2,21 @@
 
 <div class="page-head">
   <div>
-    <p class="section-label">Puntuacion y cierre</p>
+    <p class="section-label">Puntuación y cierre</p>
     <h1>Reglas de la quiniela</h1>
   </div>
 </div>
 
 <div class="grid-2">
   <div class="card card-pad">
-    <h2 class="card-title">Puntuacion por acierto</h2>
-    <p class="muted">Define cuantos puntos otorga cada tipo de acierto en un partido.</p>
+    <h2 class="card-title">Puntuación por acierto</h2>
+    <p class="muted">Define cuántos puntos otorga cada tipo de acierto en un partido.</p>
     <form method="post" action="<%= adminBase %>/puntuacion" class="stack">
       <div class="field">
         <label for="points_outcome">Acertar el ganador (o el empate)</label>
         <input type="number" id="points_outcome" name="points_outcome" min="0" max="999"
                value="<%= settings.pointsOutcome %>" required />
-        <span class="field-hint">Se otorga cuando el socio acierta quien gana el partido pero no el marcador exacto.</span>
+        <span class="field-hint">Se otorga cuando el socio acierta quién gana el partido pero no el marcador exacto.</span>
       </div>
       <div class="field">
         <label for="points_exact">Acertar el marcador exacto</label>
@@ -24,12 +24,12 @@
                value="<%= settings.pointsExact %>" required />
         <span class="field-hint">Se otorga cuando el socio acierta el marcador exacto del partido.</span>
       </div>
-      <button type="submit" class="btn btn-primary">Guardar puntuacion</button>
+      <button type="submit" class="btn btn-primary">Guardar puntuación</button>
     </form>
   </div>
 
   <div class="card card-pad">
-    <h2 class="card-title">Carga de pronosticos</h2>
+    <h2 class="card-title">Carga de pronósticos</h2>
     <p class="muted">
       Estado actual:
       <% if (settings.predictionsLocked) { %>
@@ -40,11 +40,11 @@
     </p>
     <form method="post" action="<%= adminBase %>/cierre" class="stack">
       <div class="field">
-        <label for="deadline_text">Texto de fecha limite (opcional)</label>
+        <label for="deadline_text">Texto de fecha límite (opcional)</label>
         <input type="text" id="deadline_text" name="deadline_text"
                value="<%= settings.deadlineText %>"
                placeholder="Ej. hasta el 11 de junio a las 12:00" />
-        <span class="field-hint">Se muestra a los socios como referencia mientras la carga este abierta.</span>
+        <span class="field-hint">Se muestra a los socios como referencia mientras la carga esté abierta.</span>
       </div>
       <div class="lock-toggle">
         <label class="radio-row">
