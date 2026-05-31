@@ -12,6 +12,13 @@
   acertar el marcador exacto suma <strong><%= settings.pointsExact %> puntos</strong>.
 </div>
 
+<% if (settings.predictionsLocked) { %>
+  <div class="notice">
+    La carga está cerrada: toca el nombre de cualquier socio para ver su
+    quiniela. Las quinielas son visibles para todos por transparencia.
+  </div>
+<% } %>
+
 <%- include('../partials/standings') %>
 
 <%- include('../partials/footer') %>

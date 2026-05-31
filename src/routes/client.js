@@ -6,7 +6,7 @@ const router = express.Router();
 const store = require('../store');
 const audit = require('../audit');
 const { parseScore } = require('../util');
-const { computeStandings } = require('../scoring');
+const { computeStandings, matchIsFinished, predictionPoints } = require('../scoring');
 
 function flash(req, type, text) {
   req.session.flash = { type, text };
@@ -104,6 +104,46 @@ router.post('/quiniela', requireMember, async (req, res) => {
   res.redirect('/socio/quiniela');
 });
 
+// --- Ver la quiniela de otro socio (transparencia) ---
+// Solo es posible cuando la carga esta cerrada; asi nadie ve los pronosticos
+// ajenos antes del cierre. Se accede desde la tabla de posiciones.
+router.get('/quiniela/:id', requireMember, async (req, res) => {
+  const settings = await store.getSettings();
+  if (!settings.predictionsLocked) {
+    flash(req, 'error', 'Las quinielas de los demás socios solo pueden verse cuando la carga está cerrada.');
+    return res.redirect('/socio/posiciones');
+  }
+  const id = parseInt(req.params.id, 10);
+  const target = await store.getMember(id);
+  if (!target) {
+    flash(req, 'error', 'Socio no encontrado.');
+    return res.redirect('/socio/posiciones');
+  }
+  const [groups, predictions] = await Promise.all([
+    store.getGroups(),
+    store.getPredictions(id),
+  ]);
+  let points = 0;
+  for (const g of groups) {
+    for (const m of g.matches) {
+      if (!matchIsFinished(m)) continue;
+      const pred = predictions.get(m.id);
+      if (!pred) continue;
+      points += predictionPoints(pred, m, settings).points;
+    }
+  }
+  res.render('client/quiniela_ver', {
+    title: `Quiniela de ${target.first_name} ${target.last_name} · Quiniela CVA`,
+    section: 'client',
+    target,
+    groups,
+    settings,
+    predictions,
+    points,
+    editable: false,
+  });
+});
+
 // --- Resultados ---
 router.get('/resultados', requireMember, async (req, res) => {
   const groups = await store.getGroups();
@@ -129,6 +169,9 @@ router.get('/posiciones', requireMember, async (req, res) => {
     standings,
     settings,
     highlightMemberId: req.member.id,
+    // Cuando la carga esta cerrada, cada socio enlaza a su quiniela (visible
+    // para todos por transparencia). Con la carga abierta no se enlaza.
+    quinielaLinkBase: settings.predictionsLocked ? '/socio/quiniela' : null,
   });
 });
 

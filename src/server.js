@@ -13,6 +13,7 @@ const { formatKickoff, formatDateTime } = require('./util');
 const publicRoutes = require('./routes/public');
 const clientRoutes = require('./routes/client');
 const adminRoutes = require('./routes/admin');
+const displayRoutes = require('./routes/display');
 
 const PORT = process.env.PORT || 3000;
 
@@ -21,6 +22,9 @@ if (!process.env.ADMIN_PASSWORD) {
 }
 if (!process.env.SESSION_SECRET) {
   console.warn('[server] SESSION_SECRET no está configurada. Las sesiones no serán estables entre deploys.');
+}
+if (!process.env.DISPLAY_PASSWORD) {
+  console.warn('[server] DISPLAY_PASSWORD no está configurada. El acceso de pantallas (/tv) no permitirá ingresar hasta definirla.');
 }
 
 const app = express();
@@ -62,6 +66,7 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 
 app.use('/', publicRoutes);
 app.use('/socio', clientRoutes);
+app.use('/tv', displayRoutes);
 app.use(ADMIN_PATH, adminRoutes);
 
 app.use((req, res) => {
