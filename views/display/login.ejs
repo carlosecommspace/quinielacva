@@ -1,0 +1,24 @@
+<%- include('../partials/header') %>
+
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <p class="section-label">Pantallas del club</p>
+    <h1>Acceso de pantalla</h1>
+    <p class="muted">Ingresa la clave de pantalla para mostrar la tabla de posiciones en el TV.</p>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash flash-error"><%= error %></div>
+    <% } %>
+
+    <form method="post" action="/tv/login" class="stack">
+      <div class="field">
+        <label for="password">Clave de pantalla</label>
+        <input type="password" id="password" name="password" autocomplete="current-password"
+               required autofocus />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

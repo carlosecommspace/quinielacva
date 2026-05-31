@@ -3,7 +3,7 @@
 Quiniela digital para los socios del club CVA. Cubre los **72 partidos de la
 fase de grupos** del Mundial FIFA 2026 (12 grupos, A-L).
 
-La aplicacion tiene dos portales, **con rutas de acceso separadas**:
+La aplicacion tiene tres portales, **con rutas de acceso separadas**:
 
 - **Portal del socio** - es la cara publica de la app: la raiz (`/`) lleva
   directamente al ingreso del socio (`/socio`). El socio ingresa con un codigo,
@@ -13,6 +13,10 @@ La aplicacion tiene dos portales, **con rutas de acceso separadas**:
   y consulta la tabla. Por seguridad **no vive en la predecible `/admin`**: su
   ruta se define con la variable de entorno `ADMIN_PATH` y no se enlaza desde
   ninguna pagina publica.
+- **Portal de pantallas** (`/tv`) - pensado para los TVs del club. Pide solo
+  una clave (`DISPLAY_PASSWORD`) y muestra la **tabla de posiciones** a pantalla
+  completa, **actualizandose sola** cada 60 segundos. No permite ver ni editar
+  quinielas individuales.
 
 ## Funcionalidades
 
@@ -32,6 +36,14 @@ La aplicacion tiene dos portales, **con rutas de acceso separadas**:
 1. Ingresar con su codigo para ver y **llenar su quiniela** (mientras la carga
    este abierta).
 2. Consultar los **resultados** oficiales y la **tabla de posiciones**.
+3. **Cuando la carga esta cerrada**, ver desde la tabla de posiciones la
+   **quiniela de cualquier otro socio** (solo lectura), por transparencia.
+   Mientras la carga sigue abierta, las quinielas ajenas no son visibles.
+
+### Pantalla (TV)
+1. Ingresar con la clave `DISPLAY_PASSWORD` en `/tv`.
+2. Mostrar la **tabla de posiciones** a pantalla completa, que se actualiza
+   sola cada 60 segundos. Ideal para los televisores del club.
 
 ## Stack
 
@@ -78,6 +90,8 @@ Cada vez que se **edita una quiniela** se deja un registro, por transparencia:
    - `ADMIN_PATH` - la ruta secreta del portal administrador (ej.
      `gestion-cva-2026`). El panel quedara en `/<ADMIN_PATH>`. Si se omite,
      se usa `/admin` (no recomendado en produccion).
+   - `DISPLAY_PASSWORD` - la clave del portal de pantallas (`/tv`) para los
+     TVs del club. Si se omite, el acceso `/tv` no permite ingresar.
    - `SESSION_SECRET` - una cadena larga y aleatoria
    - `DATABASE_SSL` - `false` si usas la URL interna del proyecto
 4. Railway construye con Nixpacks y arranca con `npm start`. La base de datos

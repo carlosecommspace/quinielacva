@@ -1,0 +1,17 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label">Mundial 2026 · Fase de grupos</p>
+    <h1>Tabla de posiciones</h1>
+  </div>
+  <div class="page-head-aside">
+    <span class="tag"><%= standings.length %> socios</span>
+  </div>
+</div>
+
+<div class="tv-board">
+  <%- include('../partials/standings') %>
+</div>
+
+<%- include('../partials/footer') %>

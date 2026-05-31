@@ -1,0 +1,24 @@
+<%- include('../partials/header') %>
+
+<div class="page-head">
+  <div>
+    <p class="section-label">Quiniela de un socio</p>
+    <h1><%= target.first_name %> <%= target.last_name %></h1>
+  </div>
+  <div class="page-head-aside">
+    <span class="tag">Acción <%= target.share_number %></span>
+    <span class="tag tag-points"><%= points %> puntos</span>
+  </div>
+</div>
+
+<div class="notice">
+  Estás viendo la quiniela de <%= target.first_name %> <%= target.last_name %>.
+  La carga está cerrada, por eso las quinielas son visibles para todos los
+  socios (transparencia). Solo lectura.
+</div>
+
+<p class="back-link"><a href="/socio/posiciones">&larr; Volver a posiciones</a></p>
+
+<%- include('../partials/quiniela') %>
+
+<%- include('../partials/footer') %>

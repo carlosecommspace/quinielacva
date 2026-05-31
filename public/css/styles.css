@@ -463,6 +463,21 @@ input:disabled { background: #F4F4F2; color: var(--cva-blue-soft); }
   border: 1px dashed var(--rule-strong); border-radius: 10px;
 }
 
+/* ---------- Enlace de socio en la tabla de posiciones ---------- */
+.member-link { text-decoration: none; }
+.member-link .member-name { color: var(--cva-blue); text-decoration: underline; text-underline-offset: 2px; }
+.member-link:hover .member-name { color: var(--cva-blue-light); }
+
+/* ---------- Pantalla (TV): tabla mas grande y legible a distancia ---------- */
+.tv-board .table { font-size: 1.2rem; }
+.tv-board .table th { font-size: 0.8rem; }
+.tv-board .table td { padding-top: 14px; padding-bottom: 14px; }
+.tv-board .rank-badge { width: 30px; height: 30px; }
+.tv-board .col-points { font-size: 1.35rem; }
+@media (min-width: 1200px) {
+  .tv-board .table { font-size: 1.45rem; }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {
   .choice-grid, .stat-grid, .action-grid, .grid-2 { grid-template-columns: 1fr; }

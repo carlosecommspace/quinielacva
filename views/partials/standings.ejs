@@ -1,3 +1,7 @@
+<%
+  // Si quinielaLinkBase esta definido, cada socio enlaza a su quiniela.
+  var qLinkBase = (typeof quinielaLinkBase !== 'undefined' && quinielaLinkBase) ? quinielaLinkBase : null;
+%>
 <% if (!standings.length) { %>
   <div class="empty">Aún no hay socios registrados en la quiniela.</div>
 <% } else { %>
@@ -23,7 +27,11 @@
             <span class="rank-badge <%= row.rank <= 3 ? 'rank-' + row.rank : '' %>"><%= row.rank %></span>
           </td>
           <td>
-            <span class="member-name"><%= row.member.first_name %> <%= row.member.last_name %></span>
+            <% if (qLinkBase) { %>
+              <a class="member-link" href="<%= qLinkBase %>/<%= row.member.id %>"><span class="member-name"><%= row.member.first_name %> <%= row.member.last_name %></span></a>
+            <% } else { %>
+              <span class="member-name"><%= row.member.first_name %> <%= row.member.last_name %></span>
+            <% } %>
             <% if (isMe) { %><span class="tag tag-me">Tú</span><% } %>
           </td>
           <td class="col-num muted"><%= row.member.share_number %></td>
