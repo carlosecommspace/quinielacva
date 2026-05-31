@@ -5,13 +5,14 @@ fase de grupos** del Mundial FIFA 2026 (12 grupos, A-L).
 
 La aplicacion tiene dos portales, **con rutas de acceso separadas**:
 
-- **Portal del socio** (`/socio`) - el socio ingresa con un codigo, carga sus
-  pronosticos y consulta resultados y posiciones.
+- **Portal del socio** - es la cara publica de la app: la raiz (`/`) lleva
+  directamente al ingreso del socio (`/socio`). El socio ingresa con un codigo,
+  carga sus pronosticos y consulta resultados y posiciones.
 - **Portal administrador** (ruta secreta configurable) - gestiona socios,
   define la puntuacion, carga los resultados oficiales, abre o cierra la carga
   y consulta la tabla. Por seguridad **no vive en la predecible `/admin`**: su
   ruta se define con la variable de entorno `ADMIN_PATH` y no se enlaza desde
-  la pagina publica de inicio.
+  ninguna pagina publica.
 
 ## Funcionalidades
 

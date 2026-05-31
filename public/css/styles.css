@@ -140,37 +140,6 @@ code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
   margin-top: 14px; max-width: 540px;
   font-size: 1.02rem; color: var(--cva-blue-soft); font-weight: 400;
 }
-.choice-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
-}
-.choice-grid-single {
-  grid-template-columns: 1fr; max-width: 460px;
-}
-.choice-card {
-  display: flex; flex-direction: column; gap: 6px;
-  background: var(--cva-white);
-  border: 1px solid var(--rule);
-  border-radius: 10px;
-  padding: 26px;
-  color: var(--cva-ink);
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
-}
-.choice-card:hover {
-  border-color: var(--cva-blue-light);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-.choice-card h2 { color: var(--cva-black); }
-.choice-card p { color: var(--cva-blue-soft); font-size: 0.92rem; }
-.choice-cta {
-  margin-top: 12px; font-weight: 700; font-size: 0.9rem; color: var(--cva-blue);
-}
-.choice-card-admin { background: var(--cva-blue); border-color: var(--cva-blue); }
-.choice-card-admin .section-label { color: var(--cva-blue-light); }
-.choice-card-admin h2 { color: var(--cva-white); }
-.choice-card-admin p { color: var(--cva-blue-mist); }
-.choice-card-admin .choice-cta { color: var(--cva-oro); }
-
 /* ---------- Cards ---------- */
 .card {
   background: var(--cva-white);
