@@ -31,7 +31,7 @@ router.get('/', (req, res) => {
   if (req.session && req.session.isAdmin) {
     return res.redirect(`${ADMIN_PATH}/panel`);
   }
-  res.render('admin/login', { title: 'Administracion · Quiniela CVA', section: 'admin' });
+  res.render('admin/login', { title: 'Administración · Quiniela CVA', section: 'admin' });
 });
 
 router.post('/login', (req, res) => {
@@ -41,9 +41,9 @@ router.post('/login', (req, res) => {
     return res.redirect(`${ADMIN_PATH}/panel`);
   }
   res.render('admin/login', {
-    title: 'Administracion · Quiniela CVA',
+    title: 'Administración · Quiniela CVA',
     section: 'admin',
-    error: 'Contrasena incorrecta.',
+    error: 'Contraseña incorrecta.',
   });
 });
 
@@ -92,7 +92,7 @@ router.post('/socios', requireAdmin, async (req, res) => {
   const shareNumber = String(req.body.share_number || '').trim();
 
   if (!firstName || !lastName || !shareNumber) {
-    flash(req, 'error', 'Nombre, apellido y numero de accion son obligatorios.');
+    flash(req, 'error', 'Nombre, apellido y número de acción son obligatorios.');
     return res.redirect(`${ADMIN_PATH}/socios`);
   }
 
@@ -112,10 +112,10 @@ router.post('/socios', requireAdmin, async (req, res) => {
     }
   }
   if (!created) {
-    flash(req, 'error', 'No se pudo generar un codigo unico. Intenta de nuevo.');
+    flash(req, 'error', 'No se pudo generar un código único. Intenta de nuevo.');
     return res.redirect(`${ADMIN_PATH}/socios`);
   }
-  flash(req, 'notice', `Socio creado: ${created.first_name} ${created.last_name}. Codigo de acceso: ${created.code}`);
+  flash(req, 'notice', `Socio creado: ${created.first_name} ${created.last_name}. Código de acceso: ${created.code}`);
   res.redirect(`${ADMIN_PATH}/socios?creado=${created.id}`);
 });
 
@@ -137,7 +137,7 @@ router.post('/socios/:id/codigo', requireAdmin, async (req, res) => {
     const code = memberCode(member.share_number);
     try {
       await query('UPDATE members SET code = $1 WHERE id = $2', [code, id]);
-      flash(req, 'notice', `Nuevo codigo para ${member.first_name} ${member.last_name}: ${code}`);
+      flash(req, 'notice', `Nuevo código para ${member.first_name} ${member.last_name}: ${code}`);
       break;
     } catch (err) {
       if (err.code === '23505') continue;
@@ -249,7 +249,7 @@ router.post('/partidos', requireAdmin, async (req, res) => {
 router.get('/puntuacion', requireAdmin, async (req, res) => {
   const settings = await store.getSettings();
   res.render('admin/puntuacion', {
-    title: 'Puntuacion · Quiniela CVA',
+    title: 'Puntuación · Quiniela CVA',
     section: 'admin',
     settings,
   });
@@ -259,12 +259,12 @@ router.post('/puntuacion', requireAdmin, async (req, res) => {
   const outcome = parseInt(req.body.points_outcome, 10);
   const exact = parseInt(req.body.points_exact, 10);
   if (!Number.isInteger(outcome) || outcome < 0 || !Number.isInteger(exact) || exact < 0) {
-    flash(req, 'error', 'Los puntajes deben ser numeros enteros mayores o iguales a cero.');
+    flash(req, 'error', 'Los puntajes deben ser números enteros mayores o iguales a cero.');
     return res.redirect(`${ADMIN_PATH}/puntuacion`);
   }
   await store.setSetting('points_outcome', outcome);
   await store.setSetting('points_exact', exact);
-  flash(req, 'notice', 'Puntuacion actualizada.');
+  flash(req, 'notice', 'Puntuación actualizada.');
   res.redirect(`${ADMIN_PATH}/puntuacion`);
 });
 
@@ -276,7 +276,7 @@ router.post('/cierre', requireAdmin, async (req, res) => {
   flash(
     req,
     'notice',
-    locked ? 'Carga de pronosticos CERRADA.' : 'Carga de pronosticos ABIERTA.'
+    locked ? 'Carga de pronósticos CERRADA.' : 'Carga de pronósticos ABIERTA.'
   );
   res.redirect(`${ADMIN_PATH}/puntuacion`);
 });

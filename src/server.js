@@ -17,10 +17,10 @@ const adminRoutes = require('./routes/admin');
 const PORT = process.env.PORT || 3000;
 
 if (!process.env.ADMIN_PASSWORD) {
-  console.warn('[server] ADMIN_PASSWORD no esta configurada. Usando una clave por defecto INSEGURA: "cva-admin-2026".');
+  console.warn('[server] ADMIN_PASSWORD no está configurada. Usando una clave por defecto INSEGURA: "cva-admin-2026".');
 }
 if (!process.env.SESSION_SECRET) {
-  console.warn('[server] SESSION_SECRET no esta configurada. Las sesiones no seran estables entre deploys.');
+  console.warn('[server] SESSION_SECRET no está configurada. Las sesiones no serán estables entre deploys.');
 }
 
 const app = express();
@@ -66,10 +66,10 @@ app.use(ADMIN_PATH, adminRoutes);
 
 app.use((req, res) => {
   res.status(404).render('error', {
-    title: 'Pagina no encontrada',
+    title: 'Página no encontrada',
     section: 'public',
     code: 404,
-    message: 'La pagina que buscas no existe.',
+    message: 'La página que buscas no existe.',
   });
 });
 
@@ -80,7 +80,7 @@ app.use((err, req, res, next) => {
     title: 'Error',
     section: 'public',
     code: 500,
-    message: 'Ocurrio un error inesperado. Intenta de nuevo.',
+    message: 'Ocurrió un error inesperado. Intenta de nuevo.',
   });
 });
 

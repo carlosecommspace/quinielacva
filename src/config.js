@@ -15,7 +15,7 @@ function normalizeAdminPath(raw) {
   if (!/^[A-Za-z0-9._~-]+$/.test(p)) {
     console.warn(
       `[config] ADMIN_PATH "${raw}" contiene caracteres no permitidos; ` +
-        `usa solo letras, numeros, ".", "_", "~" o "-". Se usara "/${fallback}".`
+        `usa solo letras, números, ".", "_", "~" o "-". Se usará "/${fallback}".`
     );
     return '/' + fallback;
   }
@@ -26,8 +26,8 @@ const ADMIN_PATH = normalizeAdminPath(process.env.ADMIN_PATH);
 
 if (ADMIN_PATH === '/admin') {
   console.warn(
-    '[config] El portal administrador esta en la ruta por defecto /admin. ' +
-      'Define ADMIN_PATH con una ruta secreta antes de salir a produccion.'
+    '[config] El portal administrador está en la ruta por defecto /admin. ' +
+      'Define ADMIN_PATH con una ruta secreta antes de salir a producción.'
   );
 }
 

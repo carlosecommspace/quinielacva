@@ -4,7 +4,7 @@
   <div class="card auth-card">
     <p class="section-label">Portal administrador</p>
     <h1>Acceso al panel</h1>
-    <p class="muted">Area exclusiva para la persona encargada de la quiniela.</p>
+    <p class="muted">Área exclusiva para la persona encargada de la quiniela.</p>
 
     <% if (typeof error !== 'undefined' && error) { %>
       <div class="flash flash-error"><%= error %></div>
@@ -12,7 +12,7 @@
 
     <form method="post" action="<%= adminBase %>/login" class="stack">
       <div class="field">
-        <label for="password">Contrasena</label>
+        <label for="password">Contraseña</label>
         <input type="password" id="password" name="password" autocomplete="current-password"
                required autofocus />
       </div>

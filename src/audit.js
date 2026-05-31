@@ -15,11 +15,11 @@ const store = require('./store');
 //   totalMatches total de partidos del torneo.
 //   ip           IP de origen de la peticion.
 async function logQuinielaEdit({ actor, actorMemberId, target, savedCount, totalMatches, ip }) {
-  const targetName = `${target.first_name} ${target.last_name} (accion ${target.share_number})`;
+  const targetName = `${target.first_name} ${target.last_name} (acción ${target.share_number})`;
   const who = actor === 'admin' ? 'el admin' : `el socio #${actorMemberId}`;
   console.log(
-    `[audit] ${new Date().toISOString()} ${who} edito la quiniela de ${targetName} ` +
-      `[${savedCount}/${totalMatches} pronosticos] ip=${ip || '-'}`
+    `[audit] ${new Date().toISOString()} ${who} editó la quiniela de ${targetName} ` +
+      `[${savedCount}/${totalMatches} pronósticos] ip=${ip || '-'}`
   );
   try {
     await store.recordAudit({

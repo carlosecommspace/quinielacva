@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
     return res.render('client/login', {
       title: 'Acceso socios · Quiniela CVA',
       section: 'client',
-      error: 'Ingresa tu codigo de acceso.',
+      error: 'Ingresa tu código de acceso.',
     });
   }
   const member = await store.getMemberByCode(code);
@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
     return res.render('client/login', {
       title: 'Acceso socios · Quiniela CVA',
       section: 'client',
-      error: 'El codigo no es valido. Verificalo con la administracion del club.',
+      error: 'El código no es válido. Verifícalo con la administración del club.',
     });
   }
   await store.markFirstAccess(member.id);
@@ -81,7 +81,7 @@ router.get('/quiniela', requireMember, async (req, res) => {
 router.post('/quiniela', requireMember, async (req, res) => {
   const settings = await store.getSettings();
   if (settings.predictionsLocked) {
-    flash(req, 'error', 'La carga de pronosticos esta cerrada. No se guardaron cambios.');
+    flash(req, 'error', 'La carga de pronósticos está cerrada. No se guardaron cambios.');
     return res.redirect('/socio/quiniela');
   }
   const matches = await store.getMatches();
@@ -100,7 +100,7 @@ router.post('/quiniela', requireMember, async (req, res) => {
     totalMatches: matches.length,
     ip: req.ip,
   });
-  flash(req, 'notice', `Pronosticos guardados (${saved} de ${matches.length} partidos).`);
+  flash(req, 'notice', `Pronósticos guardados (${saved} de ${matches.length} partidos).`);
   res.redirect('/socio/quiniela');
 });
 

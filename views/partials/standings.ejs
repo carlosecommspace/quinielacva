@@ -1,5 +1,5 @@
 <% if (!standings.length) { %>
-  <div class="empty">Aun no hay socios registrados en la quiniela.</div>
+  <div class="empty">Aún no hay socios registrados en la quiniela.</div>
 <% } else { %>
   <div class="card table-card">
     <table class="table standings-table">
@@ -7,7 +7,7 @@
         <tr>
           <th class="col-rank">#</th>
           <th>Socio</th>
-          <th class="col-num">Accion</th>
+          <th class="col-num">Acción</th>
           <th class="col-num">Exactos</th>
           <th class="col-num">Resultado</th>
           <th class="col-num">Jugados</th>
@@ -24,7 +24,7 @@
           </td>
           <td>
             <span class="member-name"><%= row.member.first_name %> <%= row.member.last_name %></span>
-            <% if (isMe) { %><span class="tag tag-me">Tu</span><% } %>
+            <% if (isMe) { %><span class="tag tag-me">Tú</span><% } %>
           </td>
           <td class="col-num muted"><%= row.member.share_number %></td>
           <td class="col-num"><%= row.exactHits %></td>

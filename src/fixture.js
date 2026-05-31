@@ -7,18 +7,18 @@
 
 // Composicion de los 12 grupos. El orden define el slot 1-4 de cada grupo.
 const GROUPS = {
-  A: ['Mexico', 'Sudafrica', 'Corea del Sur', 'Chequia'],
-  B: ['Canada', 'Bosnia y Herzegovina', 'Catar', 'Suiza'],
-  C: ['Brasil', 'Marruecos', 'Haiti', 'Escocia'],
-  D: ['Estados Unidos', 'Paraguay', 'Australia', 'Turquia'],
+  A: ['México', 'Sudáfrica', 'Corea del Sur', 'Chequia'],
+  B: ['Canadá', 'Bosnia y Herzegovina', 'Catar', 'Suiza'],
+  C: ['Brasil', 'Marruecos', 'Haití', 'Escocia'],
+  D: ['Estados Unidos', 'Paraguay', 'Australia', 'Turquía'],
   E: ['Alemania', 'Curazao', 'Costa de Marfil', 'Ecuador'],
-  F: ['Paises Bajos', 'Japon', 'Suecia', 'Tunez'],
-  G: ['Belgica', 'Egipto', 'Iran', 'Nueva Zelanda'],
-  H: ['Espana', 'Cabo Verde', 'Arabia Saudita', 'Uruguay'],
+  F: ['Países Bajos', 'Japón', 'Suecia', 'Túnez'],
+  G: ['Bélgica', 'Egipto', 'Irán', 'Nueva Zelanda'],
+  H: ['España', 'Cabo Verde', 'Arabia Saudita', 'Uruguay'],
   I: ['Francia', 'Senegal', 'Irak', 'Noruega'],
   J: ['Argentina', 'Argelia', 'Austria', 'Jordania'],
-  K: ['Portugal', 'RD del Congo', 'Uzbekistan', 'Colombia'],
-  L: ['Inglaterra', 'Croacia', 'Ghana', 'Panama'],
+  K: ['Portugal', 'RD del Congo', 'Uzbekistán', 'Colombia'],
+  L: ['Inglaterra', 'Croacia', 'Ghana', 'Panamá'],
 };
 
 // Calendario: [match_no, grupo, slotLocal, slotVisitante, jornada, kickoff].
