@@ -63,10 +63,10 @@ code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
 }
 .brand { display: flex; align-items: center; gap: 12px; color: var(--cva-black); }
 .brand-mark {
-  width: 18px; height: 18px;
-  background: var(--cva-oro);
-  border: 2px solid var(--cva-blue);
+  height: 40px; width: auto;
   flex: none;
+  display: block;
+  object-fit: contain;
 }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
 .brand-text strong {
