@@ -11,7 +11,7 @@
   <div class="card card-pad">
     <h2 class="card-title">Puntuacion por acierto</h2>
     <p class="muted">Define cuantos puntos otorga cada tipo de acierto en un partido.</p>
-    <form method="post" action="/admin/puntuacion" class="stack">
+    <form method="post" action="<%= adminBase %>/puntuacion" class="stack">
       <div class="field">
         <label for="points_outcome">Acertar el ganador (o el empate)</label>
         <input type="number" id="points_outcome" name="points_outcome" min="0" max="999"
@@ -38,7 +38,7 @@
         <strong class="text-open">abierta</strong> &mdash; los socios pueden cargar y editar sus quinielas.
       <% } %>
     </p>
-    <form method="post" action="/admin/cierre" class="stack">
+    <form method="post" action="<%= adminBase %>/cierre" class="stack">
       <div class="field">
         <label for="deadline_text">Texto de fecha limite (opcional)</label>
         <input type="text" id="deadline_text" name="deadline_text"

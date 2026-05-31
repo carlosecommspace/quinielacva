@@ -7,6 +7,7 @@ const express = require('express');
 const cookieSession = require('cookie-session');
 
 const db = require('./db');
+const { ADMIN_PATH } = require('./config');
 const { formatKickoff, formatDateTime } = require('./util');
 
 const publicRoutes = require('./routes/public');
@@ -49,6 +50,7 @@ app.use((req, res, next) => {
   res.locals.currentPath = req.path;
   res.locals.section = 'public';
   res.locals.title = 'Quiniela CVA';
+  res.locals.adminBase = ADMIN_PATH;
   next();
 });
 
@@ -56,7 +58,7 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 
 app.use('/', publicRoutes);
 app.use('/socio', clientRoutes);
-app.use('/admin', adminRoutes);
+app.use(ADMIN_PATH, adminRoutes);
 
 app.use((req, res) => {
   res.status(404).render('error', {

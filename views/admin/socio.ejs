@@ -17,9 +17,9 @@
   carga este cerrada. Los cambios se guardan al presionar el boton inferior.
 </div>
 
-<p class="back-link"><a href="/admin/socios">&larr; Volver a socios</a></p>
+<p class="back-link"><a href="<%= adminBase %>/socios">&larr; Volver a socios</a></p>
 
-<form method="post" action="/admin/socios/<%= member.id %>">
+<form method="post" action="<%= adminBase %>/socios/<%= member.id %>">
   <%- include('../partials/quiniela') %>
   <div class="save-bar">
     <span class="save-bar-text">Editando la quiniela de <%= member.first_name %> <%= member.last_name %>.</span>

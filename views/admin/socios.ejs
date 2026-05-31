@@ -12,7 +12,7 @@
 
 <div class="card card-pad">
   <h2 class="card-title">Dar de alta un socio</h2>
-  <form method="post" action="/admin/socios" class="form-row">
+  <form method="post" action="<%= adminBase %>/socios" class="form-row">
     <div class="field">
       <label for="first_name">Nombre</label>
       <input type="text" id="first_name" name="first_name" required />
@@ -60,11 +60,11 @@
             <% } %>
           </td>
           <td class="col-actions">
-            <a class="btn btn-ghost btn-sm" href="/admin/socios/<%= m.id %>">Ver quiniela</a>
-            <form method="post" action="/admin/socios/<%= m.id %>/codigo" class="inline-form">
+            <a class="btn btn-ghost btn-sm" href="<%= adminBase %>/socios/<%= m.id %>">Ver quiniela</a>
+            <form method="post" action="<%= adminBase %>/socios/<%= m.id %>/codigo" class="inline-form">
               <button type="submit" class="btn btn-ghost btn-sm">Nuevo codigo</button>
             </form>
-            <form method="post" action="/admin/socios/<%= m.id %>/eliminar" class="inline-form"
+            <form method="post" action="<%= adminBase %>/socios/<%= m.id %>/eliminar" class="inline-form"
                   onsubmit="return confirm('Eliminar a <%= m.first_name %> <%= m.last_name %> y todos sus pronosticos?');">
               <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
             </form>

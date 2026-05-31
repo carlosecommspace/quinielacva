@@ -10,7 +10,7 @@
       <div class="flash flash-error"><%= error %></div>
     <% } %>
 
-    <form method="post" action="/admin/login" class="stack">
+    <form method="post" action="<%= adminBase %>/login" class="stack">
       <div class="field">
         <label for="password">Contrasena</label>
         <input type="password" id="password" name="password" autocomplete="current-password"
