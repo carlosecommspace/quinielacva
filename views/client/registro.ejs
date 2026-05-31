@@ -1,0 +1,47 @@
+<%- include('../partials/header') %>
+
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <p class="section-label">Quiniela Mundialista CVA 2026</p>
+    <h1>Crea tu quiniela</h1>
+    <p class="muted">Solo para socios del club. Ingresa tu número de acción y tu
+      nombre; te generamos tu acceso y podrás armar todas las quinielas que quieras.</p>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash flash-error"><%= error %></div>
+    <% } %>
+
+    <% var v = (typeof values !== 'undefined' && values) ? values : {}; %>
+    <form method="post" action="/socio/registro" class="stack">
+      <div class="field">
+        <label for="share_number">Número de acción</label>
+        <input type="text" id="share_number" name="share_number" inputmode="numeric"
+               autocomplete="off" maxlength="6" placeholder="Ej. 042"
+               value="<%= v.share_number || '' %>" required autofocus />
+      </div>
+      <div class="field">
+        <label for="first_name">Nombre</label>
+        <input type="text" id="first_name" name="first_name" autocomplete="given-name"
+               value="<%= v.first_name || '' %>" required />
+      </div>
+      <div class="field">
+        <label for="last_name">Apellido</label>
+        <input type="text" id="last_name" name="last_name" autocomplete="family-name"
+               value="<%= v.last_name || '' %>" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Crear mi acceso</button>
+    </form>
+
+    <div class="notice" style="margin-top:16px">
+      Cada quiniela cuesta <strong><%= cost %></strong>. Al armarla queda como
+      <strong>NO PAGADA</strong>; para validarla y que juegue, realiza el pago a
+      la administración del club y ellos la activarán.
+    </div>
+
+    <p class="auth-alt">
+      ¿Ya tienes tu código? <a href="/socio">Entra aquí</a>.
+    </p>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

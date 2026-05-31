@@ -35,6 +35,16 @@ function memberCode(shareNumber) {
   return prefix + randomChars(CODE_LETTERS, 3);
 }
 
+// Normaliza el numero de accion a 3 digitos (formato del club). Toma los
+// ultimos 3 digitos y rellena con ceros a la izquierda (ej. "42" -> "042",
+// "1234" -> "234"). Si no hay digitos, conserva el texto recortado.
+function normalizeShare(value) {
+  const raw = String(value == null ? '' : value).trim();
+  const digits = raw.replace(/\D/g, '');
+  if (!digits) return raw;
+  return digits.slice(-3).padStart(3, '0');
+}
+
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
 // kickoff se guarda como texto 'YYYY-MM-DDTHH:MM'.
@@ -67,4 +77,4 @@ function parseScore(value) {
   return n;
 }
 
-module.exports = { randomCode, memberCode, formatKickoff, formatDateTime, parseScore };
+module.exports = { randomCode, memberCode, normalizeShare, formatKickoff, formatDateTime, parseScore };

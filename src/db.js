@@ -58,15 +58,29 @@ async function migrate() {
       created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `);
+  // Una quiniela es la unidad que compite y se paga. Un socio (members) puede
+  // tener varias quinielas; cada una se paga y valida por separado. Por defecto
+  // se crea como NO pagada (paid = FALSE) y la administracion la activa al
+  // recibir el pago.
+  await query(`
+    CREATE TABLE IF NOT EXISTS quinielas (
+      id         SERIAL PRIMARY KEY,
+      member_id  INT  NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+      label      TEXT NOT NULL DEFAULT 'Quiniela',
+      paid       BOOLEAN NOT NULL DEFAULT FALSE,
+      paid_at    TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
   await query(`
     CREATE TABLE IF NOT EXISTS predictions (
-      id         SERIAL PRIMARY KEY,
-      member_id  INT NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-      match_id   INT NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
-      home_score INT NOT NULL,
-      away_score INT NOT NULL,
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-      UNIQUE (member_id, match_id)
+      id          SERIAL PRIMARY KEY,
+      quiniela_id INT NOT NULL REFERENCES quinielas(id) ON DELETE CASCADE,
+      match_id    INT NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
+      home_score  INT NOT NULL,
+      away_score  INT NOT NULL,
+      updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (quiniela_id, match_id)
     );
   `);
   // Bitacora de auditoria: registra cada edicion de quiniela (por el socio o por
@@ -86,6 +100,67 @@ async function migrate() {
       ip               TEXT
     );
   `);
+}
+
+// Migra una base creada con el modelo antiguo (predictions.member_id, una sola
+// quiniela por socio) al nuevo modelo (predictions.quiniela_id, varias quinielas
+// por socio). Es idempotente: solo actua si todavia existe la columna member_id
+// en predictions, y crea una quiniela por defecto para cada socio conservando
+// todos sus pronosticos. Marca esas quinielas migradas como pagadas para no
+// alterar quien venia participando.
+async function migrateQuinielas() {
+  const col = await query(
+    "SELECT 1 FROM information_schema.columns WHERE table_name = 'predictions' AND column_name = 'member_id'"
+  );
+  if (col.rowCount === 0) return; // ya migrado o base nueva
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const hasQ = await client.query(
+      "SELECT 1 FROM information_schema.columns WHERE table_name = 'predictions' AND column_name = 'quiniela_id'"
+    );
+    if (hasQ.rowCount === 0) {
+      await client.query(
+        'ALTER TABLE predictions ADD COLUMN quiniela_id INT REFERENCES quinielas(id) ON DELETE CASCADE'
+      );
+    }
+    const members = await client.query('SELECT id FROM members');
+    for (const m of members.rows) {
+      const existing = await client.query(
+        'SELECT id FROM quinielas WHERE member_id = $1 ORDER BY id LIMIT 1',
+        [m.id]
+      );
+      let quinielaId;
+      if (existing.rowCount === 0) {
+        const ins = await client.query(
+          "INSERT INTO quinielas (member_id, label, paid, paid_at) VALUES ($1, 'Quiniela 1', TRUE, now()) RETURNING id",
+          [m.id]
+        );
+        quinielaId = ins.rows[0].id;
+      } else {
+        quinielaId = existing.rows[0].id;
+      }
+      await client.query(
+        'UPDATE predictions SET quiniela_id = $1 WHERE member_id = $2 AND quiniela_id IS NULL',
+        [quinielaId, m.id]
+      );
+    }
+    await client.query('DELETE FROM predictions WHERE quiniela_id IS NULL');
+    await client.query('ALTER TABLE predictions ALTER COLUMN quiniela_id SET NOT NULL');
+    // Al soltar member_id se eliminan tambien su FK y el UNIQUE(member_id, match_id).
+    await client.query('ALTER TABLE predictions DROP COLUMN member_id');
+    await client.query(
+      'ALTER TABLE predictions ADD CONSTRAINT predictions_quiniela_match_key UNIQUE (quiniela_id, match_id)'
+    );
+    await client.query('COMMIT');
+    console.log('[db] Migración a múltiples quinielas por socio completada.');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 const DEFAULT_SETTINGS = {
@@ -193,6 +268,7 @@ async function applyOfficialFixture() {
 
 async function init() {
   await migrate();
+  await migrateQuinielas();
   await seedSettings();
   await seedTournament();
   await applyOfficialFixture();

@@ -14,8 +14,9 @@ const store = require('./store');
 //   savedCount   cantidad de partidos con pronostico cargado tras guardar.
 //   totalMatches total de partidos del torneo.
 //   ip           IP de origen de la peticion.
-async function logQuinielaEdit({ actor, actorMemberId, target, savedCount, totalMatches, ip }) {
-  const targetName = `${target.first_name} ${target.last_name} (acción ${target.share_number})`;
+async function logQuinielaEdit({ actor, actorMemberId, target, quinielaLabel, savedCount, totalMatches, ip }) {
+  const label = quinielaLabel ? ` · ${quinielaLabel}` : '';
+  const targetName = `${target.first_name} ${target.last_name} (acción ${target.share_number})${label}`;
   const who = actor === 'admin' ? 'el admin' : `el socio #${actorMemberId}`;
   console.log(
     `[audit] ${new Date().toISOString()} ${who} editó la quiniela de ${targetName} ` +

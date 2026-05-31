@@ -1,6 +1,7 @@
 'use strict';
 
 const { query, pool } = require('./db');
+const { memberCode } = require('./util');
 
 async function getSettings() {
   const { rows } = await query('SELECT key, value FROM settings');
@@ -77,10 +78,137 @@ async function getMemberByCode(code) {
   return rows[0] || null;
 }
 
-async function getPredictions(memberId) {
+// Busca un socio existente por numero de accion + nombre + apellido (sin
+// distinguir mayusculas). Se usa en el alta publica para reusar el mismo socio
+// (y su codigo) cuando vuelve a cargar otra quiniela.
+async function findMember(shareNumber, firstName, lastName) {
   const { rows } = await query(
-    'SELECT match_id, home_score, away_score FROM predictions WHERE member_id = $1',
+    `SELECT * FROM members
+     WHERE share_number = $1
+       AND lower(first_name) = lower($2)
+       AND lower(last_name)  = lower($3)
+     ORDER BY id LIMIT 1`,
+    [shareNumber, firstName, lastName]
+  );
+  return rows[0] || null;
+}
+
+// Crea un socio generando un codigo de acceso unico (reintenta ante colisiones).
+// Devuelve la fila creada o null si no se logro un codigo unico.
+async function createMember(firstName, lastName, shareNumber) {
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const code = memberCode(shareNumber);
+    try {
+      const { rows } = await query(
+        `INSERT INTO members (first_name, last_name, share_number, code)
+         VALUES ($1, $2, $3, $4) RETURNING *`,
+        [firstName, lastName, shareNumber, code]
+      );
+      return rows[0];
+    } catch (err) {
+      if (err.code === '23505') continue; // colision de codigo, reintentar
+      throw err;
+    }
+  }
+  return null;
+}
+
+// --- Quinielas ---
+async function getMemberQuinielas(memberId) {
+  const { rows } = await query(
+    'SELECT id, member_id, label, paid, paid_at, created_at FROM quinielas WHERE member_id = $1 ORDER BY id',
     [memberId]
+  );
+  return rows;
+}
+
+async function getQuiniela(id) {
+  const { rows } = await query(
+    `SELECT q.id, q.member_id, q.label, q.paid, q.paid_at, q.created_at,
+            m.first_name, m.last_name, m.share_number, m.code
+     FROM quinielas q JOIN members m ON m.id = q.member_id
+     WHERE q.id = $1`,
+    [id]
+  );
+  return rows[0] || null;
+}
+
+async function getAllQuinielas() {
+  const { rows } = await query(
+    `SELECT q.id, q.member_id, q.label, q.paid, q.paid_at, q.created_at,
+            m.first_name, m.last_name, m.share_number, m.code
+     FROM quinielas q JOIN members m ON m.id = q.member_id
+     ORDER BY q.paid ASC, q.created_at DESC, q.id DESC`
+  );
+  return rows;
+}
+
+async function getPaidQuinielas() {
+  const { rows } = await query(
+    `SELECT q.id, q.member_id, q.label,
+            m.first_name, m.last_name, m.share_number
+     FROM quinielas q JOIN members m ON m.id = q.member_id
+     WHERE q.paid = TRUE`
+  );
+  return rows;
+}
+
+async function createQuiniela(memberId, label) {
+  const { rows } = await query(
+    'INSERT INTO quinielas (member_id, label, paid) VALUES ($1, $2, FALSE) RETURNING *',
+    [memberId, label]
+  );
+  return rows[0];
+}
+
+async function setQuinielaPaid(id, paid) {
+  await query(
+    'UPDATE quinielas SET paid = $1, paid_at = CASE WHEN $1 THEN now() ELSE NULL END WHERE id = $2',
+    [paid, id]
+  );
+}
+
+async function deleteQuiniela(id) {
+  await query('DELETE FROM quinielas WHERE id = $1', [id]);
+}
+
+function nextQuinielaLabel(count) {
+  return `Quiniela ${count + 1}`;
+}
+
+async function getQuinielaCountsByMember() {
+  const { rows } = await query(
+    `SELECT member_id,
+            COUNT(*)::int AS total,
+            COUNT(*) FILTER (WHERE paid)::int AS paid
+     FROM quinielas GROUP BY member_id`
+  );
+  const map = new Map();
+  for (const r of rows) map.set(r.member_id, { total: r.total, paid: r.paid });
+  return map;
+}
+
+async function getQuinielaSummary() {
+  const { rows } = await query(
+    'SELECT COUNT(*)::int AS total, COUNT(*) FILTER (WHERE paid)::int AS paid FROM quinielas'
+  );
+  return rows[0] || { total: 0, paid: 0 };
+}
+
+async function getPredictionCountsByQuiniela() {
+  const { rows } = await query(
+    'SELECT quiniela_id, COUNT(*)::int AS n FROM predictions GROUP BY quiniela_id'
+  );
+  const map = new Map();
+  for (const r of rows) map.set(r.quiniela_id, r.n);
+  return map;
+}
+
+// --- Pronosticos (por quiniela) ---
+async function getPredictions(quinielaId) {
+  const { rows } = await query(
+    'SELECT match_id, home_score, away_score FROM predictions WHERE quiniela_id = $1',
+    [quinielaId]
   );
   const map = new Map();
   for (const r of rows) map.set(r.match_id, r);
@@ -89,29 +217,29 @@ async function getPredictions(memberId) {
 
 async function getAllPredictions() {
   const { rows } = await query(
-    'SELECT member_id, match_id, home_score, away_score FROM predictions'
+    'SELECT quiniela_id, match_id, home_score, away_score FROM predictions'
   );
   return rows;
 }
 
 // entries: [{ matchId, home, away }]. Si home o away es null se borra el pronostico.
-async function savePredictions(memberId, entries) {
+async function savePredictions(quinielaId, entries) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     for (const e of entries) {
       if (e.home === null || e.away === null) {
         await client.query(
-          'DELETE FROM predictions WHERE member_id = $1 AND match_id = $2',
-          [memberId, e.matchId]
+          'DELETE FROM predictions WHERE quiniela_id = $1 AND match_id = $2',
+          [quinielaId, e.matchId]
         );
       } else {
         await client.query(
-          `INSERT INTO predictions (member_id, match_id, home_score, away_score, updated_at)
+          `INSERT INTO predictions (quiniela_id, match_id, home_score, away_score, updated_at)
            VALUES ($1, $2, $3, $4, now())
-           ON CONFLICT (member_id, match_id)
+           ON CONFLICT (quiniela_id, match_id)
            DO UPDATE SET home_score = $3, away_score = $4, updated_at = now()`,
-          [memberId, e.matchId, e.home, e.away]
+          [quinielaId, e.matchId, e.home, e.away]
         );
       }
     }
@@ -169,6 +297,19 @@ module.exports = {
   getMembers,
   getMember,
   getMemberByCode,
+  findMember,
+  createMember,
+  getMemberQuinielas,
+  getQuiniela,
+  getAllQuinielas,
+  getPaidQuinielas,
+  createQuiniela,
+  setQuinielaPaid,
+  deleteQuiniela,
+  nextQuinielaLabel,
+  getQuinielaCountsByMember,
+  getQuinielaSummary,
+  getPredictionCountsByQuiniela,
   getPredictions,
   getAllPredictions,
   savePredictions,

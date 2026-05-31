@@ -26,19 +26,22 @@ function predictionPoints(prediction, match, scoring) {
   return { points: 0, exact: false, hit: false };
 }
 
-// Calcula la tabla de posiciones.
-// members:     [{ id, first_name, last_name, share_number, ... }]
+// Calcula la tabla de posiciones. Cada quiniela compite por separado.
+// competitors: [{ id, label, member: { id, first_name, last_name, share_number } }]
+//              donde id es el id de la quiniela.
 // matches:     [{ id, home_score, away_score, ... }]
-// predictions: [{ member_id, match_id, home_score, away_score }]
+// predictions: [{ quiniela_id, match_id, home_score, away_score }]
 // scoring:     { pointsOutcome, pointsExact }
-function computeStandings(members, matches, predictions, scoring) {
+function computeStandings(competitors, matches, predictions, scoring) {
   const finished = matches.filter(matchIsFinished);
   const matchById = new Map(finished.map((m) => [m.id, m]));
 
   const stats = new Map();
-  for (const m of members) {
-    stats.set(m.id, {
-      member: m,
+  for (const c of competitors) {
+    stats.set(c.id, {
+      id: c.id,
+      member: c.member,
+      label: c.label,
       points: 0,
       exactHits: 0,
       outcomeHits: 0,
@@ -49,7 +52,7 @@ function computeStandings(members, matches, predictions, scoring) {
   for (const p of predictions) {
     const match = matchById.get(p.match_id);
     if (!match) continue;
-    const s = stats.get(p.member_id);
+    const s = stats.get(p.quiniela_id);
     if (!s) continue;
     const r = predictionPoints(p, match, scoring);
     s.points += r.points;

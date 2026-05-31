@@ -10,6 +10,19 @@ const audit = require('../audit');
 const { memberCode, parseScore } = require('../util');
 const { computeStandings, matchIsFinished, predictionPoints } = require('../scoring');
 
+const QUINIELA_COST = process.env.QUINIELA_COST || 'REF15';
+
+// Suma de puntos de un mapa de pronosticos contra los partidos finalizados.
+function totalPoints(matches, predictions, settings) {
+  let points = 0;
+  for (const m of matches) {
+    if (!matchIsFinished(m)) continue;
+    const pred = predictions.get(m.id);
+    if (pred) points += predictionPoints(pred, m, settings).points;
+  }
+  return points;
+}
+
 function adminPassword() {
   return process.env.ADMIN_PASSWORD || 'cva-admin-2026';
 }
@@ -54,10 +67,11 @@ router.post('/salir', (req, res) => {
 
 // --- Panel ---
 router.get('/panel', requireAdmin, async (req, res) => {
-  const [members, matches, settings] = await Promise.all([
+  const [members, matches, settings, quinielaSummary] = await Promise.all([
     store.getMembers(),
     store.getMatches(),
     store.getSettings(),
+    store.getQuinielaSummary(),
   ]);
   res.render('admin/panel', {
     title: 'Panel · Quiniela CVA',
@@ -65,23 +79,22 @@ router.get('/panel', requireAdmin, async (req, res) => {
     membersCount: members.length,
     matchesCount: matches.length,
     finishedCount: matches.filter(matchIsFinished).length,
+    quinielaSummary,
     settings,
   });
 });
 
 // --- Socios ---
 router.get('/socios', requireAdmin, async (req, res) => {
-  const members = await store.getMembers();
-  const predictions = await store.getAllPredictions();
-  const predCount = new Map();
-  for (const p of predictions) {
-    predCount.set(p.member_id, (predCount.get(p.member_id) || 0) + 1);
-  }
+  const [members, counts] = await Promise.all([
+    store.getMembers(),
+    store.getQuinielaCountsByMember(),
+  ]);
   res.render('admin/socios', {
     title: 'Socios · Quiniela CVA',
     section: 'admin',
     members,
-    predCount,
+    counts,
     createdId: req.query.creado ? parseInt(req.query.creado, 10) : null,
   });
 });
@@ -96,25 +109,13 @@ router.post('/socios', requireAdmin, async (req, res) => {
     return res.redirect(`${ADMIN_PATH}/socios`);
   }
 
-  let created = null;
-  for (let attempt = 0; attempt < 12 && !created; attempt++) {
-    const code = memberCode(shareNumber);
-    try {
-      const { rows } = await query(
-        `INSERT INTO members (first_name, last_name, share_number, code)
-         VALUES ($1, $2, $3, $4) RETURNING *`,
-        [firstName, lastName, shareNumber, code]
-      );
-      created = rows[0];
-    } catch (err) {
-      if (err.code === '23505') continue; // colision de codigo, reintentar
-      throw err;
-    }
-  }
+  const created = await store.createMember(firstName, lastName, shareNumber);
   if (!created) {
     flash(req, 'error', 'No se pudo generar un código único. Intenta de nuevo.');
     return res.redirect(`${ADMIN_PATH}/socios`);
   }
+  // El socio arranca con una quiniela vacia (no pagada) lista para cargar.
+  await store.createQuiniela(created.id, store.nextQuinielaLabel(0));
   flash(req, 'notice', `Socio creado: ${created.first_name} ${created.last_name}. Código de acceso: ${created.code}`);
   res.redirect(`${ADMIN_PATH}/socios?creado=${created.id}`);
 });
@@ -144,9 +145,10 @@ router.post('/socios/:id/codigo', requireAdmin, async (req, res) => {
       throw err;
     }
   }
-  res.redirect(`${ADMIN_PATH}/socios?creado=${id}`);
+  res.redirect(`${ADMIN_PATH}/socios/${id}`);
 });
 
+// Detalle del socio: lista sus quinielas (pagadas y no pagadas).
 router.get('/socios/:id', requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const member = await store.getMember(id);
@@ -154,39 +156,134 @@ router.get('/socios/:id', requireAdmin, async (req, res) => {
     flash(req, 'error', 'Socio no encontrado.');
     return res.redirect(`${ADMIN_PATH}/socios`);
   }
-  const [groups, settings, predictions, matches] = await Promise.all([
-    store.getGroups(),
+  const [quinielas, settings, matches, predCounts] = await Promise.all([
+    store.getMemberQuinielas(id),
     store.getSettings(),
-    store.getPredictions(id),
     store.getMatches(),
+    store.getPredictionCountsByQuiniela(),
   ]);
-
-  let points = 0;
-  for (const m of matches) {
-    if (!matchIsFinished(m)) continue;
-    const pred = predictions.get(m.id);
-    if (!pred) continue;
-    points += predictionPoints(pred, m, settings).points;
+  const items = [];
+  for (const q of quinielas) {
+    const preds = await store.getPredictions(q.id);
+    items.push({
+      ...q,
+      points: totalPoints(matches, preds, settings),
+      filled: predCounts.get(q.id) || 0,
+    });
   }
-
   res.render('admin/socio', {
     title: `${member.first_name} ${member.last_name} · Quiniela CVA`,
     section: 'admin',
     member,
-    groups,
-    settings,
-    predictions,
-    points,
-    editable: true,
+    quinielas: items,
+    totalMatches: matches.length,
+    cost: QUINIELA_COST,
   });
 });
 
-router.post('/socios/:id', requireAdmin, async (req, res) => {
+// Crear una quiniela adicional para el socio.
+router.post('/socios/:id/quiniela', requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const member = await store.getMember(id);
   if (!member) {
     flash(req, 'error', 'Socio no encontrado.');
     return res.redirect(`${ADMIN_PATH}/socios`);
+  }
+  const existing = await store.getMemberQuinielas(id);
+  const q = await store.createQuiniela(id, store.nextQuinielaLabel(existing.length));
+  flash(req, 'notice', `Nueva quiniela creada para ${member.first_name} ${member.last_name} (no pagada).`);
+  res.redirect(`${ADMIN_PATH}/quinielas/${q.id}`);
+});
+
+// --- Quinielas: seguimiento global (pagadas / no pagadas) ---
+router.get('/quinielas', requireAdmin, async (req, res) => {
+  const [quinielas, settings, matches, predCounts] = await Promise.all([
+    store.getAllQuinielas(),
+    store.getSettings(),
+    store.getMatches(),
+    store.getPredictionCountsByQuiniela(),
+  ]);
+  const items = [];
+  for (const q of quinielas) {
+    const preds = await store.getPredictions(q.id);
+    items.push({
+      ...q,
+      points: totalPoints(matches, preds, settings),
+      filled: predCounts.get(q.id) || 0,
+    });
+  }
+  res.render('admin/quinielas', {
+    title: 'Quinielas · Quiniela CVA',
+    section: 'admin',
+    quinielas: items,
+    totalMatches: matches.length,
+    cost: QUINIELA_COST,
+    paidCount: items.filter((q) => q.paid).length,
+  });
+});
+
+// Marcar una quiniela como pagada / no pagada (validacion del pago).
+router.post('/quinielas/:qid/pagar', requireAdmin, async (req, res) => {
+  const qid = parseInt(req.params.qid, 10);
+  const quiniela = await store.getQuiniela(qid);
+  if (!quiniela) {
+    flash(req, 'error', 'Quiniela no encontrada.');
+    return res.redirect(`${ADMIN_PATH}/quinielas`);
+  }
+  const paid = req.body.paid === '1';
+  await store.setQuinielaPaid(qid, paid);
+  flash(
+    req,
+    'notice',
+    `Quiniela de ${quiniela.first_name} ${quiniela.last_name} (${quiniela.label}) marcada como ${paid ? 'PAGADA' : 'NO pagada'}.`
+  );
+  const back = req.body.back === 'socio' ? `${ADMIN_PATH}/socios/${quiniela.member_id}` : `${ADMIN_PATH}/quinielas`;
+  res.redirect(back);
+});
+
+router.post('/quinielas/:qid/eliminar', requireAdmin, async (req, res) => {
+  const qid = parseInt(req.params.qid, 10);
+  const quiniela = await store.getQuiniela(qid);
+  if (!quiniela) return res.redirect(`${ADMIN_PATH}/quinielas`);
+  await store.deleteQuiniela(qid);
+  flash(req, 'notice', `Quiniela eliminada: ${quiniela.first_name} ${quiniela.last_name} (${quiniela.label}).`);
+  const back = req.body.back === 'socio' ? `${ADMIN_PATH}/socios/${quiniela.member_id}` : `${ADMIN_PATH}/quinielas`;
+  res.redirect(back);
+});
+
+// Ver / editar los pronosticos de una quiniela.
+router.get('/quinielas/:qid', requireAdmin, async (req, res) => {
+  const qid = parseInt(req.params.qid, 10);
+  const quiniela = await store.getQuiniela(qid);
+  if (!quiniela) {
+    flash(req, 'error', 'Quiniela no encontrada.');
+    return res.redirect(`${ADMIN_PATH}/quinielas`);
+  }
+  const [groups, settings, predictions, matches] = await Promise.all([
+    store.getGroups(),
+    store.getSettings(),
+    store.getPredictions(qid),
+    store.getMatches(),
+  ]);
+  res.render('admin/quiniela', {
+    title: `${quiniela.first_name} ${quiniela.last_name} · ${quiniela.label} · Quiniela CVA`,
+    section: 'admin',
+    quiniela,
+    groups,
+    settings,
+    predictions,
+    points: totalPoints(matches, predictions, settings),
+    cost: QUINIELA_COST,
+    editable: true,
+  });
+});
+
+router.post('/quinielas/:qid', requireAdmin, async (req, res) => {
+  const qid = parseInt(req.params.qid, 10);
+  const quiniela = await store.getQuiniela(qid);
+  if (!quiniela) {
+    flash(req, 'error', 'Quiniela no encontrada.');
+    return res.redirect(`${ADMIN_PATH}/quinielas`);
   }
   const matches = await store.getMatches();
   const entries = matches.map((m) => ({
@@ -194,18 +291,19 @@ router.post('/socios/:id', requireAdmin, async (req, res) => {
     home: parseScore(req.body[`h_${m.id}`]),
     away: parseScore(req.body[`a_${m.id}`]),
   }));
-  await store.savePredictions(id, entries);
+  await store.savePredictions(qid, entries);
   const saved = entries.filter((e) => e.home !== null && e.away !== null).length;
   await audit.logQuinielaEdit({
     actor: 'admin',
     actorMemberId: null,
-    target: member,
+    target: quiniela,
+    quinielaLabel: quiniela.label,
     savedCount: saved,
     totalMatches: matches.length,
     ip: req.ip,
   });
-  flash(req, 'notice', `Quiniela actualizada para ${member.first_name} ${member.last_name}.`);
-  res.redirect(`${ADMIN_PATH}/socios/${id}`);
+  flash(req, 'notice', `Quiniela actualizada: ${quiniela.first_name} ${quiniela.last_name} (${quiniela.label}).`);
+  res.redirect(`${ADMIN_PATH}/quinielas/${qid}`);
 });
 
 // --- Partidos: equipos, fechas y resultados ---
@@ -283,13 +381,23 @@ router.post('/cierre', requireAdmin, async (req, res) => {
 
 // --- Posiciones ---
 router.get('/posiciones', requireAdmin, async (req, res) => {
-  const [members, matches, predictions, settings] = await Promise.all([
-    store.getMembers(),
+  const [paid, matches, predictions, settings] = await Promise.all([
+    store.getPaidQuinielas(),
     store.getMatches(),
     store.getAllPredictions(),
     store.getSettings(),
   ]);
-  const standings = computeStandings(members, matches, predictions, settings);
+  const competitors = paid.map((q) => ({
+    id: q.id,
+    label: q.label,
+    member: {
+      id: q.member_id,
+      first_name: q.first_name,
+      last_name: q.last_name,
+      share_number: q.share_number,
+    },
+  }));
+  const standings = computeStandings(competitors, matches, predictions, settings);
   res.render('admin/posiciones', {
     title: 'Posiciones · Quiniela CVA',
     section: 'admin',
